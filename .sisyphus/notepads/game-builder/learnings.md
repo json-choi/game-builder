@@ -454,3 +454,58 @@ function extractCode(response: string): string {
 - CLI wrapper uses child_process.spawn with timeout
 - Detection checks 3 sources in priority order
 - Version compatibility: 4.4.x through 4.6.x
+
+## Task 8: Godot Project Scaffold System
+
+### Scaffold Architecture
+- **Location**: `packages/godot-manager/src/scaffold.ts`
+- **Template**: `templates/basic-2d/`
+- **Key Functions**:
+  - `scaffoldProject(projectPath, options)` - Creates new project from template
+  - `getAvailableTemplates()` - Lists available templates
+  - `copyDirRecursive()` - Copies template, skipping `.godot` cache directory
+  - `customizeProjectGodot()` - Replaces project name and viewport settings
+
+### Template Structure
+```
+templates/basic-2d/
+├── project.godot          # Godot 4.4 config (config_version=5)
+├── scenes/Main.tscn       # Empty main scene entry point
+├── scripts/               # GDScript directory (.gitkeep)
+├── assets/                # Assets directory (.gitkeep)
+└── README.md              # Extension points documentation
+```
+
+### Extension Points for AI Agents
+1. **Scenes** (`scenes/`) - Add `.tscn` files, reference in Main.tscn
+2. **Scripts** (`scripts/`) - Add `.gd` files, attach to scene nodes
+3. **Assets** (`assets/`) - Add sprites, sounds, organize by type
+
+### Key Implementation Details
+- Template path resolved relative to scaffold.ts location
+- `.godot` directory skipped during copy (editor cache)
+- Project name customized via regex replacement in project.godot
+- Viewport dimensions customizable (defaults: 1152x648)
+- Main scene hardcoded to `res://scenes/Main.tscn`
+
+### Testing Results
+- ✓ Scaffold creates valid Godot 4.4 projects
+- ✓ Project name customization works
+- ✓ All directories and files created correctly
+- ✓ Main.tscn properly configured as entry point
+- ✓ Template listing works via CLI
+
+### CLI Usage
+```bash
+# Create new project
+bun run packages/godot-manager/src/scaffold.ts create /path/to/project "Project Name"
+
+# List available templates
+bun run packages/godot-manager/src/scaffold.ts list
+```
+
+### Integration with AI Agents
+- Scaffold creates minimal, valid Godot project
+- README documents where AI agents should add files
+- Extension points clearly defined for scene/script/asset addition
+- Project structure preserved for agent system prompts to reference
