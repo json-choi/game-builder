@@ -379,7 +379,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 3. AI→Godot Pipeline Spike
+- [x] 3. AI→Godot Pipeline Spike
 
   **What to do**:
   - Create `spike/ai-godot-pipeline/` directory

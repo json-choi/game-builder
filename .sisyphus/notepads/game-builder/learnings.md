@@ -127,3 +127,106 @@ app.on("before-quit", () => godot.kill());
 - No technical blockers
 - Future: Migrate to LibGodot when stable
 
+
+## [2026-02-13] Task 3 — AI→Godot Pipeline Spike
+
+### Key Findings
+
+1. **AI Can Generate Godot Files (with caveats)**
+   - Success rate: 50% (below 80% target)
+   - Main issue: Prompt engineering
+   - AI often returns explanatory text instead of raw code
+
+2. **Prompt Engineering is Critical**
+   - Need explicit directives: "Output ONLY raw code, NO explanation"
+   - System prompts should enforce code-only output
+   - Examples in prompts improve success rate
+
+3. **Code Extraction Needs Robustness**
+   - Current: Look for ```code blocks```
+   - Problem: AI doesn't always use code blocks
+   - Solution: Multi-strategy extraction (code blocks → full response → strip prefixes)
+
+4. **File Complexity Affects Success**
+   - GDScript (.gd): High success (Python-like syntax)
+   - Simple .tscn: Medium success (text format)
+   - Complex .tscn: Low success (many references, UIDs)
+   - project.godot: Medium success (INI-like)
+
+5. **Validation is Essential**
+   - `godot --headless --check-only` validates scripts
+   - Problem: Can timeout on first run (asset import)
+   - Solution: Separate validation step with timeout handling
+
+### Patterns to Follow
+
+```typescript
+// Strict prompt for code generation
+const systemPrompt = `You are a Godot code generator.
+Output ONLY raw file content with NO explanation.
+Start your response with the first line of the file.`;
+
+// Error→correction loop
+async function generateWithRetry(prompt: string, maxAttempts = 3) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const content = await generate(prompt);
+    const validation = await validateGodot(content);
+    if (validation.success) return content;
+    prompt += `\n\nError: ${validation.error}\nFix and try again.`;
+  }
+}
+
+// Robust code extraction
+function extractCode(response: string): string {
+  // Try code block first
+  const codeBlock = response.match(/```(?:gdscript|ini|tscn)?\n([\s\S]*?)\n```/);
+  if (codeBlock) return codeBlock[1];
+  
+  // Fall back to full response, strip common prefixes
+  return response
+    .replace(/^(Here's|Here is|The code is).*?:\s*/i, '')
+    .trim();
+}
+```
+
+### Recommendations for Phase 1
+
+1. **Specialized Agent System Prompts**
+   - GDScript Coder: Focus on .gd files only
+   - Scene Builder: Focus on .tscn files only
+   - Include Godot API reference snippets in prompts
+
+2. **Error→Correction Loop**
+   - Validate after generation
+   - Feed Godot errors back to AI
+   - Retry up to 3 times
+
+3. **Incremental Generation**
+   - Generate project.godot first
+   - Then main scene structure
+   - Then scripts for each scene
+   - Validate after each step
+
+4. **Tool Restrictions**
+   - GDScript Coder: Can only write .gd files
+   - Scene Builder: Can only write .tscn files
+   - Prevents boundary violations
+
+### Gotchas
+
+- AI returns explanatory text instead of code (50% of time)
+- Code blocks not always used by AI
+- Godot validation can timeout on first run
+- Complex .tscn files have low success rate
+- Need to provide Godot API context in prompts
+
+### Decision
+
+**AI→Godot pipeline is VIABLE but needs careful implementation**:
+- 50% success rate → 80%+ achievable with better prompts
+- Error correction loop is essential
+- Agent specialization will improve quality
+- Start with simple files, build complexity gradually
+
+**Proceed to Phase 1** with focus on prompt engineering and validation.
+
