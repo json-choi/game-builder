@@ -67,3 +67,63 @@ const text = response.data?.parts?.find(p => p.type === "text")?.text;
 - Response parts are an array — must find the "text" type part
 - Tools parameter accepted but effect unclear (needs more investigation)
 
+
+## [2026-02-13] Task 2 — Godot Preview Strategy Spike
+
+### Key Learnings
+
+1. **Godot Child Process is Best for V1**
+   - Spawn Godot via `child_process.spawn()` with `--path` flag
+   - Separate window is acceptable trade-off for simplicity
+   - Native performance, no export step, no CORS issues
+
+2. **HTML5 Export Has Blockers**
+   - SharedArrayBuffer requires COOP/COEP headers
+   - Electron file:// protocol doesn't support these easily
+   - Would need HTTP server or complex workarounds
+   - Export step adds 5-10s latency per change
+
+3. **Godot 4.6 Installed**
+   - Version: 4.6.stable.official
+   - Location: `/opt/homebrew/bin/godot` and `/Applications/Godot.app`
+   - Plan specified 4.4.x but 4.6 should work fine
+
+4. **LibGodot is Future Path**
+   - Godot 4.5+ will support true embedding via shared library
+   - Would enable rendering Godot viewport directly in Electron
+   - Not stable yet — use child process for v1
+
+### Patterns to Follow
+
+```typescript
+// Spawn Godot as child process
+import { spawn } from "child_process";
+
+const godot = spawn("godot", [
+  "--path", projectPath,
+  "--position", "100,100",  // Position window
+]);
+
+// Monitor output
+godot.stdout.on("data", (data) => console.log(data.toString()));
+godot.stderr.on("data", (data) => console.error(data.toString()));
+
+// Cleanup
+app.on("before-quit", () => godot.kill());
+```
+
+### Gotchas
+
+- Godot `--check-only` can timeout on first run (asset import)
+- Godot window management requires platform-specific handling
+- HTML5 export is NOT viable for embedded preview in v1
+- Separate window UX is acceptable for game development tool
+
+### Decision
+
+**Use Approach A (Child Process)** for Phase 1 implementation:
+- Simplest and most reliable
+- Best performance
+- No technical blockers
+- Future: Migrate to LibGodot when stable
+

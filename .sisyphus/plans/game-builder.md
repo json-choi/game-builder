@@ -306,7 +306,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 2. Godot Preview Strategy Spike
+- [x] 2. Godot Preview Strategy Spike
 
   **What to do**:
   - Create `spike/godot-preview/` directory

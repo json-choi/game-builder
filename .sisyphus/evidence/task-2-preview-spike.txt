@@ -1,0 +1,28 @@
+=== Task 2: Godot Preview Strategy Spike ===
+
+APPROACH A: Godot as Child Process
+Status: ✅ CHOSEN
+- Simplest implementation
+- Native performance
+- No CORS/SharedArrayBuffer issues
+- Startup: 500-1000ms
+- Memory: 150-200MB
+
+APPROACH B: Godot HTML5 in Iframe
+Status: ❌ BLOCKED
+- Requires COOP/COEP headers
+- Electron file:// protocol doesn't support easily
+- Export latency: 5-10s
+- WASM performance overhead
+
+APPROACH C: Godot HTML5 in BrowserWindow
+Status: ⚠️ VIABLE (but not chosen)
+- Similar to Approach A but with export overhead
+- More complex than Approach A
+- No clear advantage
+
+DECISION: Approach A (Child Process)
+- Best balance of simplicity, performance, and reliability
+- Acceptable UX trade-off (separate window)
+- Future: LibGodot for true embedding (Godot 4.5+)
+
