@@ -412,3 +412,45 @@ function extractCode(response: string): string {
 - macOS .app bundles need Contents/MacOS/Godot path
 - Version string parsing needs to handle various formats
 
+
+## Task 6: Godot Manager Module
+
+### Key Learnings
+
+1. **Godot --check-only requires --script**
+   - `--check-only` is NOT a project-level validator
+   - It only works with `--script <path>` to parse a single GDScript file
+   - For project validation, use `--import` which scans filesystem and exits
+
+2. **Godot --import for Project Validation**
+   - `godot --headless --import --path <project>` validates project structure
+   - First run creates .godot/ directory and imports assets
+   - Subsequent runs are faster (~5-10s)
+   - Exit code 0 = valid project
+
+3. **Godot Binary Detection Strategy**
+   - Priority: user config → PATH → common locations
+   - On macOS: `/opt/homebrew/bin/godot` is a symlink to `/Applications/Godot.app/Contents/MacOS/Godot`
+   - `which godot` works reliably on macOS/Linux
+   - `where godot` for Windows
+
+4. **Version Parsing**
+   - Godot --version output: "4.6.stable.official.89cea1439"
+   - Format: major.minor[.patch].label.build.hash
+   - Regex handles both full and short formats
+
+5. **macOS Gatekeeper**
+   - Downloaded Godot binaries get quarantine attribute
+   - `xattr -cr Godot.app` removes it
+   - Must be done before first execution
+
+6. **Path Resolution Critical**
+   - Godot CLI requires absolute paths for --path
+   - Relative paths cause "Couldn't detect whether to run the editor" error
+   - Always resolve() paths before passing to Godot
+
+### Architecture Decisions
+- Download is stubbed — manual install for now
+- CLI wrapper uses child_process.spawn with timeout
+- Detection checks 3 sources in priority order
+- Version compatibility: 4.4.x through 4.6.x
