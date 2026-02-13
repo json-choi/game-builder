@@ -1,0 +1,35 @@
+$ playwright test
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/app.spec.ts:8:1 › launch app (10.4s)
+
+
+  1) tests/app.spec.ts:8:1 › launch app ────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  locator('.split-panel')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for locator('.split-panel')[22m
+    [2m    14 × locator resolved to <div class="split-panel">…</div>[22m
+    [2m       - unexpected value "hidden"[22m
+
+
+      13 |   const window = await electronApp.firstWindow();
+      14 |   
+    > 15 |   await expect(window.locator('.split-panel')).toBeVisible({ timeout: 10000 });
+         |                                                ^
+      16 |   
+      17 |   await expect(window.locator('.left-panel')).toBeVisible();
+      18 |   await expect(window.locator('.right-panel')).toBeVisible();
+        at /Users/jaesong/Documents/my/game-builder/packages/electron/tests/app.spec.ts:15:48
+
+  1 failed
+    tests/app.spec.ts:8:1 › launch app ─────────────────────────────────────────────────────────────
+error: script "test" exited with code 1

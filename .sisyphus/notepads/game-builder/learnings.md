@@ -271,3 +271,45 @@ function extractCode(response: string): string {
 - Implement actual build scripts for each package
 - Add dependencies as needed (React, Elysia, etc.)
 - Create shared types in @game-builder/shared
+
+## Task 5: Electron + React Shell
+
+### Key Learnings
+
+1. **Electron-Vite Setup**
+   - electron-vite provides seamless Vite integration for Electron
+   - Separate build targets: main, preload, renderer
+   - Hot reload works out of the box in dev mode
+
+2. **Split Panel with Allotment**
+   - Allotment library provides resizable panels
+   - Requires `import 'allotment/dist/style.css'`
+   - Pane sizing: minSize, preferredSize props
+
+3. **CSS Height Cascade Critical**
+   - Must set height: 100% on: html, body, #root, .app, .split-panel
+   - Missing .app height caused split-panel to be hidden
+   - Allotment requires parent container to have explicit height
+
+4. **Electron Security Configuration**
+   - contextIsolation: true (required)
+   - sandbox: true (recommended)
+   - Preload script for secure IPC bridge
+
+5. **Playwright Testing for Electron**
+   - Use @playwright/test with _electron import
+   - Launch with args pointing to built main.js
+   - Can verify UI elements and take screenshots
+
+### Successful Setup
+- Electron app launches with split panel
+- Left panel: Preview area + tab bar
+- Right panel: Chat area placeholder
+- Resizable panels working
+- Playwright test passes with screenshot evidence
+
+### Gotchas
+- .app container needs explicit height: 100% for Allotment to work
+- Must rebuild before running tests (out/ directory)
+- Playwright test requires built files, not dev server
+
