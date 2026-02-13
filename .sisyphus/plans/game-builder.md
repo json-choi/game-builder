@@ -707,7 +707,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ### Phase 2 — Single Agent Flow
 
-- [ ] 8. Godot Project Scaffold System
+- [x] 8. Godot Project Scaffold System
 
   **What to do**:
   - Create `templates/basic-2d/` with minimal Godot 4.4 project:
