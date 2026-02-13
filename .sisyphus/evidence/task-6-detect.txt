@@ -1,0 +1,5 @@
+Godot found: /opt/homebrew/bin/godot
+Version: 4.6.0 (4.6.stable.official.89cea1439)
+Compatible: true
+Source: path
+Platform: darwin (ARM64)

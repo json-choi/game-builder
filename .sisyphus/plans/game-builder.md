@@ -574,7 +574,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 6. Godot Manager Module
+- [x] 6. Godot Manager Module
 
   **What to do**:
   - Create `packages/godot-manager/` module:
@@ -638,7 +638,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 7. OpenCode SDK Integration
+- [x] 7. OpenCode SDK Integration
 
   **What to do**:
   - Create OpenCode SDK wrapper in `packages/agents/src/opencode/`:

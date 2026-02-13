@@ -1,0 +1,18 @@
+Exit code: 0
+stdout: Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 프로젝트 초기화 (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | 파일 구조 스캔 중...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 전역 클래스 이름을 불러오는 중...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | GDExtensions 검증 중...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 오토로드 스크립트를 만드는 중...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 플러그인을 초기화 중...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 파일 스캔 시작 중...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 편집기를 불러오는 중 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 편집기 레이아웃을 불러오는 중...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 독을 불러오는 중...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+

@@ -1,0 +1,37 @@
+=== OpenCode SDK Integration Test ===
+
+1. Starting/connecting to server...
+[opencode/server] Already running (v1.1.65)
+   Success: true
+   Already running: true
+
+2. Health check...
+   Healthy: true
+   Version: 1.1.65
+   Server status: healthy
+
+3. Creating session...
+   Session created: ses_3a9b4c81affehFTGPPqQq0oPD2
+   Title: Integration Test Session
+
+4. Listing sessions...
+   Total sessions: 155
+
+5. Listing agents...
+   Available agents: 17
+   First agent: sisyphus
+
+6. Sending prompt...
+   Using model: openrouter/anthropic/claude-opus-4.6
+   Prompt response received: true
+   Response text: Hello from Game Builder!
+   Parts count: 3
+
+7. SSE event subscription...
+   Event stream created: true
+   Has async iterator: true
+
+8. Cleanup...
+   Session deleted: ses_3a9b4c81affehFTGPPqQq0oPD2
+
+=== ALL TESTS PASSED ===

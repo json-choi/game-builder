@@ -317,3 +317,98 @@ function extractCode(response: string): string {
 - **Gotcha**: `Allotment` split-panel component requires its container to have `height: 100%`, `width: 100%`, and `position: relative`. Avoid `display: flex` on the container unless you ensure the child grows properly.
 - **Testing**: Playwright with Electron requires `_electron.launch()` and accessing the window via `app.firstWindow()`.
 - **Security**: Configured `sandbox: true` and `contextIsolation: true` in main process, with `contextBridge` in preload script.
+
+## [2026-02-13] Task 7 — OpenCode SDK Integration
+
+### Key Learnings
+
+1. **Server Lifecycle: Connect-First Pattern**
+   - Always check if server is already running before spawning
+   - `startServer()` returns `{ success, alreadyRunning }` to distinguish
+   - OpenCode server v1.1.65 confirmed working
+
+2. **Workspace Package Imports in Electron**
+   - electron-vite `externalizeDepsPlugin()` externalizes workspace deps
+   - Agents package exports from `src/opencode/index.ts` directly (no build step yet)
+   - Added `@game-builder/agents` as dependency in electron package.json
+
+3. **IPC Bridge Pattern**
+   - `ipcMain.handle()` for async request/response (health, createSession, sendPrompt)
+   - `ipcMain.on()` + `webContents.send()` for SSE event forwarding
+   - Preload script exposes typed `api.opencode` object via contextBridge
+
+4. **SSE Event Forwarding**
+   - Subscribe to SSE stream in main process
+   - Forward events to renderer via `webContents.send('opencode:event', event)`
+   - Renderer registers listener via `ipcRenderer.on()` with cleanup function
+
+5. **Config Management**
+   - Config at `~/.config/opencode/opencode.json` already existed
+   - `ensureConfig()` creates default if missing, leaves existing untouched
+   - `getDefaultModel()` reads first available model from config
+
+### IPC Channel Reference
+
+| Channel | Direction | Purpose |
+|---------|-----------|---------|
+| `opencode:health` | renderer→main | Health check |
+| `opencode:server-state` | renderer→main | Get server status |
+| `opencode:create-session` | renderer→main | Create new session |
+| `opencode:list-sessions` | renderer→main | List all sessions |
+| `opencode:delete-session` | renderer→main | Delete session |
+| `opencode:send-prompt` | renderer→main | Send prompt to AI |
+| `opencode:list-agents` | renderer→main | List available agents |
+| `opencode:subscribe-events` | renderer→main | Start SSE subscription |
+| `opencode:event` | main→renderer | Forward SSE events |
+
+### Gotchas
+
+- Agents package needed `@types/node` and own tsconfig.json for LSP
+- `externalizeDepsPlugin()` means workspace packages must be resolvable at runtime
+- SSE stream async iteration runs in background — needs error handling
+- `before-quit` event for graceful server shutdown
+
+
+## [2026-02-13] Task 6 — Godot Manager Module
+
+### Key Learnings
+
+1. **Godot Detection Strategy**
+   - Check PATH first (fastest)
+   - Fall back to platform-specific common locations
+   - macOS: /Applications/Godot.app, /opt/homebrew/bin/godot
+   - Linux: /usr/bin, /usr/local/bin, /snap/bin
+   - Windows: Program Files, LOCALAPPDATA, scoop
+
+2. **Version Parsing**
+   - Godot version format: "4.6.0 (4.6.stable.official.89cea1439)"
+   - Parse major.minor.patch from version string
+   - Accept 4.4.x, 4.5.x, 4.6.x as compatible
+
+3. **CLI Wrapper Pattern**
+   - Use child_process.spawn() for Godot commands
+   - Capture stdout/stderr separately
+   - Implement timeout handling (default 30s)
+   - Return structured result: { exitCode, stdout, stderr, timedOut }
+
+4. **Platform-Specific Handling**
+   - macOS: Gatekeeper quarantine requires `xattr -cr`
+   - Architecture detection: process.arch (arm64 vs x64)
+   - Binary naming varies by platform
+
+5. **Godot Validation Timeout**
+   - `--check-only` can timeout on first run (asset import)
+   - Not a blocker — expected behavior
+   - Production code should handle gracefully
+
+### Successful Implementation
+- Godot 4.6 detected at /opt/homebrew/bin/godot
+- Version compatibility check works
+- CLI wrapper implemented with timeout handling
+- Platform detection works (darwin ARM64)
+
+### Gotchas
+- Godot validation times out on first run (expected)
+- macOS .app bundles need Contents/MacOS/Godot path
+- Version string parsing needs to handle various formats
+
