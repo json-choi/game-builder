@@ -1,0 +1,14 @@
+{
+  "name": "@game-builder/agents",
+  "version": "0.0.1",
+  "description": "Agent definitions and system prompts",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "echo 'Agents build not yet configured'",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@game-builder/shared": "workspace:*"
+  }
+}

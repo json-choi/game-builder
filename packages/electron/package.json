@@ -1,0 +1,15 @@
+{
+  "name": "@game-builder/electron",
+  "version": "0.0.1",
+  "description": "Electron + React desktop application",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "echo 'Electron dev not yet configured'",
+    "build": "echo 'Electron build not yet configured'",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@game-builder/shared": "workspace:*"
+  }
+}

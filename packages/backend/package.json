@@ -1,0 +1,15 @@
+{
+  "name": "@game-builder/backend",
+  "version": "0.0.1",
+  "description": "Elysia + Bun API server",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "echo 'Backend dev not yet configured'",
+    "build": "echo 'Backend build not yet configured'",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@game-builder/shared": "workspace:*"
+  }
+}

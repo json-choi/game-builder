@@ -230,3 +230,44 @@ function extractCode(response: string): string {
 
 **Proceed to Phase 1** with focus on prompt engineering and validation.
 
+
+## Task 4: Monorepo Setup (Bun Workspace)
+
+### Key Learnings
+
+1. **Bun Workspace Configuration**
+   - Bun workspaces use `"workspaces": ["packages/*"]` in root package.json
+   - Workspace dependencies use `"workspace:*"` syntax
+   - Each package needs its own package.json with name, version, type: "module"
+
+2. **Workspace Dependency Resolution**
+   - Avoid circular dependencies in workspace references
+   - Root devDependencies are shared across all packages
+   - Packages reference each other via workspace protocol
+
+3. **TypeScript Path Aliases**
+   - Root tsconfig.json defines paths for all packages
+   - Paths use `@game-builder/*` convention for clarity
+   - Each package can have its own tsconfig.json extending root
+
+4. **Build Script Pattern**
+   - Use `bun run --filter '*' build` to run build in all packages
+   - Each package defines its own build script
+   - Packages with no build script can use echo placeholder
+
+5. **Monorepo Structure**
+   - packages/ contains all workspace packages
+   - templates/ contains project scaffolds (separate from packages)
+   - spike/ kept for reference (not part of workspace)
+   - Each package has src/ directory for TypeScript sources
+
+### Successful Setup
+- 5 packages created: electron, backend, shared, agents, godot-manager
+- Root configuration: package.json, tsconfig.json, .eslintrc.json, .gitignore
+- All packages build successfully with exit code 0
+- Bun lockfile created and workspace recognized
+
+### Next Steps
+- Implement actual build scripts for each package
+- Add dependencies as needed (React, Elysia, etc.)
+- Create shared types in @game-builder/shared

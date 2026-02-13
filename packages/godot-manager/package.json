@@ -1,0 +1,14 @@
+{
+  "name": "@game-builder/godot-manager",
+  "version": "0.0.1",
+  "description": "Godot binary and project management",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "echo 'Godot-manager build not yet configured'",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@game-builder/shared": "workspace:*"
+  }
+}

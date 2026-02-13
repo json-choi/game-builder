@@ -1,0 +1,20 @@
+[config]
+
+name="My 2D Game"
+config_version=5
+
+[application]
+
+config/name="My 2D Game"
+config/version="1.0.0"
+run/main_scene="res://scenes/main.tscn"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.196078, 0.196078, 0.196078, 1)

@@ -1,0 +1,12 @@
+{
+  "name": "@game-builder/shared",
+  "version": "0.0.1",
+  "description": "Shared types, constants, and utilities",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext .ts"
+  }
+}
