@@ -2,7 +2,6 @@ import { createHash } from "crypto";
 import { createReadStream, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { type GodotVersion, getDownloadFilename } from "./version.js";
-import { clearQuarantine } from "./detect.js";
 
 const GODOT_RELEASES_BASE_URL =
   "https://github.com/godotengine/godot-builds/releases/download";
@@ -72,7 +71,7 @@ export async function downloadGodot(options: DownloadOptions): Promise<DownloadR
 }
 
 if (import.meta.main) {
-  const { parseGodotVersion, formatVersion } = await import("./version.js");
+  const { parseGodotVersion } = await import("./version.js");
   const version = parseGodotVersion("4.6.stable.official.89cea1439");
   if (version) {
     console.log(`Download URL: ${getDownloadUrl(version, process.platform, process.arch)}`);
