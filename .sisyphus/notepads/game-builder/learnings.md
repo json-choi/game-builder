@@ -313,3 +313,7 @@ function extractCode(response: string): string {
 - Must rebuild before running tests (out/ directory)
 - Playwright test requires built files, not dev server
 
+- Task 5 (Electron Shell): Successfully set up Electron + React + Vite using `electron-vite`.
+- **Gotcha**: `Allotment` split-panel component requires its container to have `height: 100%`, `width: 100%`, and `position: relative`. Avoid `display: flex` on the container unless you ensure the child grows properly.
+- **Testing**: Playwright with Electron requires `_electron.launch()` and accessing the window via `app.firstWindow()`.
+- **Security**: Configured `sandbox: true` and `contextIsolation: true` in main process, with `contextBridge` in preload script.
