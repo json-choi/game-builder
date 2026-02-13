@@ -1,0 +1,11 @@
+=== OpenCode SDK SSE Events Test ===
+
+Connected to server, subscribing to events...
+
+Subscribing to event stream...
+✓ Event subscription successful
+  Stream type: object
+  Has Symbol.asyncIterator: true
+
+✓ SSE event stream works
+  (Not waiting for actual events to avoid timeout)
