@@ -36,11 +36,10 @@ export function useProgress() {
   })
 
   useEffect(() => {
-    // @ts-ignore - agents bridge might not exist yet
     if (!window.api?.agents?.onProgress) return
 
-    // @ts-ignore
-    const cleanup = window.api.agents.onProgress((event: ProgressEvent) => {
+    const cleanup = window.api.agents.onProgress((raw) => {
+      const event = raw as ProgressEvent
       setProgress(prev => {
         const newState = { ...prev }
 
@@ -49,7 +48,7 @@ export function useProgress() {
             newState.active = true
             newState.currentAgent = event.agent || null
             newState.totalSteps = event.totalSteps || 0
-            newState.steps = [] // Clear previous steps on new agent start
+            newState.steps = []
             break
           
           case 'step-start':
@@ -57,7 +56,6 @@ export function useProgress() {
             newState.currentStep = event.step || 0
             if (event.totalSteps) newState.totalSteps = event.totalSteps
             
-            // Add new step
             newState.steps.push({
               agent: event.agent || newState.currentAgent || 'unknown',
               step: event.step || newState.steps.length + 1,
@@ -69,7 +67,6 @@ export function useProgress() {
             break
 
           case 'step-end':
-            // Mark last step as done
             if (newState.steps.length > 0) {
               const lastStep = newState.steps[newState.steps.length - 1]
               lastStep.status = 'done'
@@ -88,7 +85,6 @@ export function useProgress() {
           case 'complete':
             newState.active = false
             newState.currentAgent = null
-            // Mark all as done if not already
             newState.steps.forEach(s => {
               if (s.status === 'running') s.status = 'done'
             })

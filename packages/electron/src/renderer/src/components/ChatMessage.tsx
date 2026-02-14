@@ -65,7 +65,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       <div className="chat-message__content-wrapper">
         <button className="chat-message__copy-btn" onClick={handleCopy} type="button">Copy</button>
         {isUser ? (
-          content
+          <div className="chat-message-content">{content}</div>
         ) : (
           <div className="chat-message-content">
             <Streamdown
