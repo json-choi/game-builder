@@ -9,16 +9,16 @@
 - [x] Task 14: Game Designer Agent — 테스트 14개 추가, 203 tests pass (bda6fce)
 - [x] Task 15: Scene Builder Agent — 테스트 21개 추가, 224 tests pass (3a7d7c6)
 - [x] Task 16: Debugger Agent — 테스트 추가, 367 agent tests pass (18818e4)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger
+- [x] Task 17: Reviewer Agent — 테스트 26개 추가, 271 agent tests pass (a5c9de4)
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer
 
 ## Skipped
 - [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
 
 ## Current
-- [ ] Task 17: Reviewer Agent
+- [ ] Task 18: Agent Coordination & Turn-Taking
 
 ## Queue (순서대로)
-- [ ] Task 18: Agent Coordination & Turn-Taking
 - [ ] Task 19: Error Feedback Loop
 - [ ] Task 20: Progress UI & Generation Status
 - [ ] Task 21: Chat History Persistence
@@ -47,7 +47,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T08:37:00+09:00
+2026-02-15T08:41:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
