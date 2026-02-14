@@ -108,6 +108,70 @@ Build a production-quality Electron desktop application that enables users to cr
 
 ---
 
+## Coding Guidelines (MANDATORY — ALL tasks)
+
+### 🔄 Dependency Freshness — 항상 최신 유지
+
+> **모든 의존성은 항상 최신 안정 버전(latest stable)을 사용한다.**
+> 오래된 라이브러리는 보안 취약점, 비호환, 누락된 기능의 원인이다.
+
+**규칙:**
+
+1. **새 패키지 설치 시**: 항상 latest 버전 설치 (`bun add <pkg>@latest`)
+2. **기존 패키지 사용 시**: 작업 시작 전 `bun outdated` 체크, outdated가 있으면 업데이트 후 작업
+3. **에러/버그 발생 시 디버깅 순서**:
+   - ① 해당 라이브러리의 현재 설치 버전 확인 (`bun pm ls <pkg>`)
+   - ② 최신 버전 확인 (`npm view <pkg> version`)
+   - ③ 버전이 다르면 **먼저 최신으로 업데이트** (`bun add <pkg>@latest`)
+   - ④ 최신 버전의 **공식 문서/CHANGELOG/마이그레이션 가이드** 확인
+   - ⑤ Breaking changes가 있으면 **최신 문서 기준으로 재구현**
+   - ⑥ 그래도 해결 안 되면 GitHub Issues에서 관련 이슈 검색
+4. **절대 하지 말 것**:
+   - ❌ 오래된 버전에 맞춰서 워크어라운드 작성
+   - ❌ deprecated API 사용 (경고 무시 금지)
+   - ❌ 버전 고정 (`"exact": true`) 없이 `^` 범위로 방치
+5. **주기적 업데이트**: Phase 전환 시 전체 `bun update` 실행 + 테스트 통과 확인
+
+### 📖 공식 문서 우선 — 모범 사례 따르기
+
+> **코드 작성 시 반드시 해당 라이브러리의 최신 공식 문서를 참조한다.**
+> Stack Overflow의 3년 전 답변이 아니라, 공식 docs의 현재 권장 방식을 따른다.
+
+**규칙:**
+
+1. **새 라이브러리 도입 시**: 공식 Getting Started → Best Practices → API Reference 순으로 읽기
+2. **구현 패턴 선택 시**: 공식 문서의 recommended/best practice 패턴 우선
+3. **Godot 관련**: `https://docs.godotengine.org/en/stable/` 기준 (4.4+)
+4. **Electron 관련**: `https://electronjs.org/docs/latest/` 기준
+5. **Bun 관련**: `https://bun.sh/docs` 기준
+6. **OpenCode SDK 관련**: `https://open-code.ai/docs/en/sdk` 기준
+7. **deprecated 패턴 발견 시**: 즉시 최신 권장 방식으로 리팩토링
+
+### 🏗️ 코드 품질
+
+1. **TypeScript strict mode**: `strict: true` in tsconfig
+2. **타입 안전**: `any` 사용 최소화, unknown → type guard 패턴
+3. **에러 처리**: try/catch에서 구체적 에러 타입 처리, 절대 빈 catch 금지
+4. **코멘트**: 코드가 스스로 설명하도록 작성. 불필요한 코멘트 금지. 복잡한 알고리즘/수식/정규식만 코멘트
+5. **테스트**: 새 모듈 작성 시 유닛 테스트 동반 (`*.test.ts`)
+6. **Import 정리**: 사용하지 않는 import 제거, 알파벳순 정렬
+
+### 🔍 문제 해결 프로토콜
+
+에러가 발생하면 반드시 이 순서를 따른다:
+
+```
+1. 에러 메시지 정확히 읽기
+2. 관련 라이브러리 버전 확인 → 최신이 아니면 업데이트
+3. 최신 버전의 공식 문서에서 해당 API/기능 확인
+4. CHANGELOG에서 breaking changes 확인
+5. 공식 문서 기준으로 코드 수정
+6. 그래도 안 되면 GitHub Issues/Discussions 검색
+7. 워크어라운드는 최후의 수단 — 반드시 TODO 코멘트와 함께
+```
+
+---
+
 ## Verification Strategy
 
 > **UNIVERSAL RULE: ZERO HUMAN INTERVENTION**
