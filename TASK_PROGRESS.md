@@ -6,16 +6,16 @@
 - [x] Task 10: Chat UI + Streaming Response — 검증 완료, useChat 테스트 추가 (c3b0510)
 - [x] Task 11: Game Preview Integration — 버그 수정 (ca72132) + usePreview 테스트 20개 추가
 - [x] Task 12: Agent Architecture — v2 SDK 마이그레이션, mock 격리 수정, 189 tests pass (818be46)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview
+- [x] Task 14: Game Designer Agent — 테스트 14개 추가, 203 tests pass (bda6fce)
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer
 
 ## Skipped
 - [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
 
 ## Current
-- [ ] Task 14: Game Designer Agent
+- [ ] Task 15: Scene Builder Agent
 
 ## Queue (순서대로)
-- [ ] Task 15: Scene Builder Agent
 - [ ] Task 16: Debugger Agent
 - [ ] Task 17: Reviewer Agent
 - [ ] Task 18: Agent Coordination & Turn-Taking
@@ -47,7 +47,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T08:27:00+09:00
+2026-02-15T08:30:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
