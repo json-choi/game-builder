@@ -21,10 +21,16 @@ export {
 export {
   getClient,
   resetClient,
+  setDirectory,
+  getDirectory,
   createSession,
   listSessions,
   deleteSession,
   sendPrompt,
+  sendPromptAsync,
+  respondToPermission,
+  replyToQuestion,
+  rejectQuestion,
   listAgents,
   subscribeEvents,
   type OpencodeClient,
@@ -33,3 +39,53 @@ export {
   type PromptResponse,
   type SSEEvent,
 } from "./client";
+
+export {
+  getProviders,
+  setAuthKey,
+  getAuthStatus,
+  removeAuth,
+  getActiveProvider,
+  setActiveProvider,
+  getStoredKey,
+  getAgentConfigs,
+  setAgentConfigs,
+  PROVIDER_PRESETS,
+  type ProviderPreset,
+  type ProviderModel,
+} from "./providers";
+
+export {
+  GameCoderAgent,
+  type GenerateOptions,
+  type GenerateResult,
+  type GameCoderEvent,
+  extractFiles,
+  type ExtractedFile,
+  createProjectTools,
+  type ProjectTool,
+} from "../game-coder/index";
+
+export {
+  type AgentDefinition,
+  type AgentExecutionContext,
+  type AgentProgressEvent,
+  type OrchestrationPlan,
+  type PlanStep,
+  type AgentResult,
+  registerAgent,
+  getAgent,
+  listRegisteredAgents,
+  clearRegistry,
+  executeAgent,
+  getToolsForAgent,
+  isToolAllowed,
+  getOrCreateAgentSession,
+  clearAgentSessions,
+  acquireFileLock,
+  createProgressReporter,
+  type ProgressReporter,
+  orchestrate,
+} from "../framework/index";
+
+export { initializeAgents } from "../agents-init";

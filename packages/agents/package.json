@@ -6,7 +6,17 @@
   "main": "src/opencode/index.ts",
   "exports": {
     ".": "./src/opencode/index.ts",
-    "./opencode": "./src/opencode/index.ts"
+    "./opencode": "./src/opencode/index.ts",
+    "./game-coder": "./src/game-coder/index.ts",
+    "./framework": "./src/framework/index.ts",
+    "./orchestrator": "./src/orchestrator/index.ts",
+    "./game-designer": "./src/game-designer/index.ts",
+    "./scene-builder": "./src/scene-builder/index.ts",
+    "./debugger": "./src/debugger/index.ts",
+    "./reviewer": "./src/reviewer/index.ts",
+    "./pixellab": "./src/pixellab/index.ts",
+    "./asset-generator": "./src/asset-generator/index.ts",
+    "./init": "./src/agents-init.ts"
   },
   "scripts": {
     "build": "echo 'Agents build not yet configured'",
@@ -14,6 +24,7 @@
   },
   "dependencies": {
     "@game-builder/shared": "workspace:*",
+    "@game-builder/godot-manager": "workspace:*",
     "@opencode-ai/sdk": "^1.1.65"
   },
   "devDependencies": {
