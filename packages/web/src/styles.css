@@ -1,0 +1,210 @@
+:root {
+    --bg-color: #1e1e1e;
+    --surface-color: #252526;
+    --border-color: #3e3e3e;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --accent-color: #007acc;
+    --accent-hover: #0062a3;
+    --google-color: #4285f4;
+    --google-hover: #3367d6;
+    --github-color: #24292e;
+    --github-hover: #1b1f23;
+    --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    background-color: var(--surface-color);
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.hero {
+    margin-bottom: 40px;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.tagline {
+    font-size: 1.25rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.login-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 40px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: white;
+    width: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-google {
+    background-color: var(--google-color);
+}
+
+.btn-google:hover {
+    background-color: var(--google-hover);
+}
+
+.btn-github {
+    background-color: var(--github-color);
+}
+
+.btn-github:hover {
+    background-color: var(--github-hover);
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: 0.875rem;
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-small:hover {
+    background-color: #4e4e4e;
+}
+
+.icon {
+    margin-right: 12px;
+    font-weight: 800;
+    opacity: 0.8;
+}
+
+.download-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.auth-callback h2 {
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.code-box {
+    background-color: #000;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: monospace;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+.small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+.actions {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+#deep-link-btn {
+    max-width: 200px;
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@game-builder/web",
+  "version": "0.0.1",
+  "description": "Game Builder web landing page",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Served by backend'",
+    "build": "echo 'Static files, no build needed'"
+  }
+}

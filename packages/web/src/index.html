@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Builder - Create games with AI</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="landing-view">
+            <header class="hero">
+                <h1>Game Builder</h1>
+                <p class="tagline">Create games with AI. No code required.</p>
+                <p class="description">
+                    Build, play, and share games instantly. 
+                    The most powerful AI game engine on your desktop.
+                </p>
+            </header>
+
+            <div class="login-section">
+                <button id="btn-google" class="btn btn-google">
+                    <span class="icon">G</span> Sign in with Google
+                </button>
+                <button id="btn-github" class="btn btn-github">
+                    <span class="icon">GH</span> Sign in with GitHub
+                </button>
+            </div>
+
+            <div class="download-section">
+                <p>Don't have the app?</p>
+                <a href="#" class="link">Download Game Builder for Desktop</a>
+            </div>
+        </div>
+
+        <div id="callback-view" class="hidden">
+            <div class="auth-callback">
+                <h2>Opening Game Builder...</h2>
+                <p>Please wait while we log you in.</p>
+                
+                <div id="manual-code-section" class="hidden">
+                    <p>If the app didn't open automatically, copy this code:</p>
+                    <div class="code-box">
+                        <code id="device-code">...</code>
+                        <button id="btn-copy" class="btn-small">Copy</button>
+                    </div>
+                    <p class="small">Paste this code in the app to sign in.</p>
+                </div>
+
+                <div class="actions">
+                    <a href="gamebuilder://auth" id="deep-link-btn" class="btn btn-primary">Open App</a>
+                    <a href="/" class="link">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/auth.js"></script>
+</body>
+</html>
