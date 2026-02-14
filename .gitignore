@@ -44,3 +44,9 @@ Thumbs.db
 tmp/
 temp/
 out/
+
+# Test artifacts
+test-results/
+
+# Sisyphus
+.sisyphus/
