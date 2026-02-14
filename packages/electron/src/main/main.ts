@@ -597,6 +597,7 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', async () => {
+  previewManager.stop()
   closeDatabase()
   await stopServer()
 })

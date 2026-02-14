@@ -47,7 +47,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ projectPath }) => {
 
   function isErrorLine(line: string): boolean {
     const lower = line.toLowerCase()
-    return lower.includes('error') || lower.includes('ERROR')
+    return lower.includes('error') || lower.includes('fatal') || lower.includes('exception')
   }
 
   return (

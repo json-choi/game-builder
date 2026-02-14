@@ -21,12 +21,23 @@ export function usePreview() {
   }, [])
 
   const startPreview = useCallback(async (projectPath: string) => {
-    const result = await window.api.godot.startPreview(projectPath)
-    setStatus(result.status)
+    try {
+      const result = await window.api.godot.startPreview(projectPath)
+      setStatus(result.status)
+      if (result.error) setError(result.error)
+    } catch (err) {
+      setStatus('error')
+      setError(err instanceof Error ? err.message : String(err))
+    }
   }, [])
 
   const stopPreview = useCallback(async () => {
-    await window.api.godot.stopPreview()
+    try {
+      await window.api.godot.stopPreview()
+    } catch (err) {
+      setStatus('error')
+      setError(err instanceof Error ? err.message : String(err))
+    }
   }, [])
 
   const clearOutput = useCallback(() => setOutput([]), [])
