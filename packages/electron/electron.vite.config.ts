@@ -4,10 +4,18 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin({ exclude: ['@game-builder/agents', '@game-builder/godot-manager', '@game-builder/shared'] })]
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin({ exclude: ['@game-builder/shared'] })],
+    build: {
+      rollupOptions: {
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].js'
+        }
+      }
+    }
   },
   renderer: {
     resolve: {

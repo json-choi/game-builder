@@ -1,0 +1,27 @@
+appId: com.gamebuilder.app
+productName: Game Builder
+directories:
+  buildResources: build
+  output: dist
+files:
+  - out/**/*
+extraMetadata:
+  main: out/main/main.js
+protocols:
+  - name: Game Builder
+    schemes:
+      - gamebuilder
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.developer-tools
+  entitlementsInherit: build/entitlements.mac.plist
+win:
+  target:
+    - nsis
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Development
