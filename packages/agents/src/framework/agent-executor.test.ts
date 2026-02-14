@@ -17,6 +17,19 @@ mock.module('./session-manager', () => ({
 
 mock.module('../opencode/client', () => ({
   sendPrompt: mockSendPrompt,
+  setDirectory: () => {},
+  getDirectory: () => '',
+  getClient: () => ({}),
+  resetClient: () => {},
+  createSession: async () => ({ id: 'ses_test', title: '' }),
+  listSessions: async () => [],
+  deleteSession: async () => {},
+  sendPromptAsync: async () => {},
+  listAgents: async () => [],
+  respondToPermission: async () => {},
+  replyToQuestion: async () => {},
+  rejectQuestion: async () => {},
+  subscribeEvents: async () => ({ error: null }),
 }))
 
 const { executeAgent } = await import('./agent-executor')
