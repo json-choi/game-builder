@@ -2,13 +2,13 @@
 
 ## Completed
 - [x] Task 1-8: Phase 0-1 (Spikes + Skeleton)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools
+- [x] Task 9: Game Coder Agent — 검증 완료, 21개 테스트 추가 (74c313a)
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent
 
 ## Current
-- [ ] Task 9: Game Coder Agent — 코드 존재, 통합 테스트 필요
+- [ ] Task 10: Chat UI + Streaming Response — 코드 존재, 검증 필요
 
 ## Queue (순서대로)
-- [ ] Task 10: Chat UI + Streaming Response — 코드 존재, 검증 필요
 - [ ] Task 11: Game Preview Integration — 코드 존재, 검증 필요
 - [ ] Task 12: Agent Architecture — 코드 존재, 검증 필요
 - [ ] Task 13: Orchestrator Agent
@@ -45,7 +45,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-14T22:55:00+09:00
+2026-02-14T23:05:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
