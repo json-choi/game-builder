@@ -184,14 +184,19 @@ Phase 6 — Asset Generation & Expansion (GATE: PixelLab generates assets)
 ├── Task 33: Cost Tracking & Usage UI
 └── Task 34: Godot Build/Export Integration
 
-Phase 7 — Work Log & One-Click Publish (GATE: Build+publish works end-to-end)
-├── Task 35: Git-like Work Log (project history, snapshots, diff view)
-├── Task 36: Auto-Commit System (AI 작업 단위별 자동 스냅샷)
-├── Task 37: Multi-Platform Build Pipeline (Desktop/Web/Mobile export presets)
-├── Task 38: Build Progress UI (빌드 상태, 로그, 에러 표시)
-├── Task 39: One-Click Publish — itch.io Integration
-├── Task 40: One-Click Publish — Google Play / App Store Prep
-└── Task 41: One-Click Publish — Steam / Web Deploy
+Phase 7 — Godot MCP & Plugin System (GATE: MCP connected, plugins install on demand)
+├── Task 35: Godot MCP Integration (AI↔에디터 실시간 브릿지)
+├── Task 36: Plugin Manager (Asset Library 검색, 원클릭 설치/제거)
+├── Task 37: AI Plugin Recommender (유저 요구에 맞는 플러그인 자동 추천/설치)
+
+Phase 8 — Work Log & One-Click Publish (GATE: Build+publish works end-to-end)
+├── Task 38: Git-like Work Log (project history, snapshots, diff view)
+├── Task 39: Auto-Commit System (AI 작업 단위별 자동 스냅샷)
+├── Task 40: Multi-Platform Build Pipeline (Desktop/Web/Mobile export presets)
+├── Task 41: Build Progress UI (빌드 상태, 로그, 에러 표시)
+├── Task 42: One-Click Publish — itch.io Integration
+├── Task 43: One-Click Publish — Google Play / App Store Prep
+└── Task 44: One-Click Publish — Steam / Web Deploy
 ```
 
 ### Parallel Execution Waves
@@ -1180,13 +1185,98 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-### Phase 7 — Work Log & One-Click Publish
+### Phase 7 — Godot MCP & Plugin System
+
+- [ ] 35. Godot MCP Integration
+
+  **What to do**:
+  - `godot-mcp-server` npm 패키지를 앱에 번들 (npx 대신 로컬 실행)
+  - Godot MCP 플러그인 (`addons/godot_mcp/`)을 프로젝트 스캐폴딩 시 자동 포함
+  - Electron 앱에서 MCP 서버 라이프사이클 관리 (시작/중지/재연결)
+  - AI 에이전트가 MCP 도구 사용하도록 전환:
+    - 파일 쓰기 대신 `create_scene`, `add_node`, `modify_node_property` 사용
+    - `get_errors`, `get_console_log`로 에디터 에러 실시간 피드백
+    - `scene_tree_dump`로 프로젝트 상태 파악
+    - `validate_script`로 구문 검증
+  - 기존 파일 기반 방식은 fallback으로 유지 (Godot 에디터 없이도 동작)
+  - MCP 연결 상태 UI 표시 (Connected/Disconnected)
+
+  **Architecture**:
+  ```
+  Electron App
+  ├── OpenCode SDK (AI) ←→ MCP Server (localhost:stdio) ←→ Godot Editor (WebSocket :6505)
+  └── Renderer (React UI)
+  ```
+
+  **References**:
+  - godot-mcp: `https://github.com/tomyud1/godot-mcp`
+  - npm: `https://www.npmjs.com/package/godot-mcp-server`
+  - 32 MCP 도구: Scene(11), Script(6), File(4), Project(9), Asset(1), Viz(1)
+
+  **Blocked By**: Task 18 (Agent Coordination)
+  **Commit**: `feat(mcp): integrate Godot MCP for live editor manipulation`
+
+---
+
+- [ ] 36. Plugin Manager (Asset Library 검색, 원클릭 설치/제거)
+
+  **What to do**:
+  - Godot Asset Library API 클라이언트 (`packages/godot-manager/src/asset-library.ts`):
+    - 검색: `GET /asset?filter=...&godot_version=4.x&category=...`
+    - 에셋 상세: `GET /asset/{id}` (설명, 다운로드 URL, 카테고리, 라이선스)
+    - 카테고리 목록: `GET /configure`
+  - 플러그인 설치 엔진:
+    1. Asset Library에서 ZIP 다운로드
+    2. ZIP 해제 → `addons/` 폴더로 복사
+    3. `plugin.cfg` 파싱하여 플러그인 정보 추출
+    4. `project.godot`의 `[editor_plugins]` 섹션에 `enabled` 추가
+    5. Godot가 실행 중이면 MCP를 통해 플러그인 리로드
+  - 플러그인 제거: `addons/{plugin}/` 삭제 + `project.godot`에서 해제
+  - UI: Plugin Manager 패널 (좌측 탭)
+    - 설치된 플러그인 목록 (활성/비활성 토글)
+    - Asset Library 검색 + 원클릭 설치
+    - 플러그인 상세 (설명, 라이선스, 버전)
+  - 설치된 플러그인 버전 추적 + 업데이트 알림
+
+  **API Reference**:
+  - Asset Library API: `https://godotengine.org/asset-library/api/asset`
+  - Configure (카테고리): `https://godotengine.org/asset-library/api/configure`
+  - 플러그인 구조: `addons/{name}/plugin.cfg` + GDScript 파일들
+
+  **Blocked By**: Task 32 (Tab System)
+  **Commit**: `feat(plugins): Asset Library integration with install/remove/update`
+
+---
+
+- [ ] 37. AI Plugin Recommender (유저 요구에 맞는 플러그인 자동 추천/설치)
+
+  **What to do**:
+  - AI 에이전트가 유저 요청을 분석하여 필요한 플러그인 추천:
+    - "인앱 결제 넣어줘" → Godot IAP 플러그인 추천 + 설치
+    - "조이스틱 지원 추가" → G.U.I.D.E 인풋 시스템 추천
+    - "온라인 리더보드" → Epic Online Services 추천
+    - "대화 시스템" → Dialogue Tree 플러그인 추천
+  - 플러그인 추천 에이전트 (또는 Orchestrator에 통합):
+    - Asset Library 검색 → 관련 플러그인 필터링
+    - 호환성 확인 (Godot 버전, 카테고리)
+    - 유저에게 추천 카드 표시 (이름, 설명, 별점, "설치" 버튼)
+  - 설치 후 자동 통합:
+    - 플러그인의 노드/리소스를 AI가 프로젝트에 적용
+    - 플러그인 사용법을 system prompt에 포함
+  - 유저가 "이 플러그인 써줘"라고 하면 바로 설치 + 적용
+
+  **Blocked By**: Task 36
+  **Commit**: `feat(plugins): AI-powered plugin recommendation and auto-integration`
+
+---
+
+### Phase 8 — Work Log & One-Click Publish
 
 > **핵심 인식**: 이 앱은 "OpenCode Desktop + Godot 통합 IDE"이다.
 > AI가 코드를 쓰고, 프리뷰로 확인하고, 작업 로그로 히스토리를 추적하고,
 > 원클릭으로 빌드 → 스토어 출시까지 하는 것이 최종 목표.
 
-- [ ] 35. Git-like Work Log (Project History)
+- [ ] 38. Git-like Work Log (Project History)
 
   **What to do**:
   - 프로젝트 디렉토리를 Git으로 자동 관리 (`git init` on project create)
@@ -1205,7 +1295,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 36. Auto-Commit System (AI 작업 단위별 자동 스냅샷)
+- [ ] 39. Auto-Commit System (AI 작업 단위별 자동 스냅샷)
 
   **What to do**:
   - AI 에이전트가 파일을 수정할 때마다 자동 커밋
@@ -1214,12 +1304,12 @@ Wave 4 (Phase 4-6 — Mixed parallel):
   - 유저가 수동으로 "Save Checkpoint" 할 수 있는 버튼
   - 자동 커밋은 squash 옵션 (너무 많은 커밋 방지)
 
-  **Blocked By**: Task 35
+  **Blocked By**: Task 38
   **Commit**: `feat(history): auto-commit on AI file changes with session grouping`
 
 ---
 
-- [ ] 37. Multi-Platform Build Pipeline
+- [ ] 40. Multi-Platform Build Pipeline
 
   **What to do**:
   - 빌드 타겟 선택 UI: Desktop (Windows/macOS/Linux), Web (HTML5), Mobile (Android/iOS)
@@ -1241,7 +1331,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
-- [ ] 38. Build Progress UI
+- [ ] 41. Build Progress UI
 
   **What to do**:
   - 빌드 진행률 표시 (프로그레스 바, 단계별 상태)
@@ -1250,12 +1340,12 @@ Wave 4 (Phase 4-6 — Mixed parallel):
   - 빌드 성공 시: 파일 위치 표시, "Open Folder" 버튼
   - 빌드 히스토리: 이전 빌드 결과 목록
 
-  **Blocked By**: Task 37
+  **Blocked By**: Task 40
   **Commit**: `feat(build): build progress UI with log streaming and error handling`
 
 ---
 
-- [ ] 39. One-Click Publish — itch.io Integration
+- [ ] 42. One-Click Publish — itch.io Integration
 
   **What to do**:
   - itch.io API 연동 (butler CLI 사용)
@@ -1270,12 +1360,12 @@ Wave 4 (Phase 4-6 — Mixed parallel):
   - butler CLI: `https://itch.io/docs/butler/`
   - itch.io API: `https://itch.io/docs/api/serverside`
 
-  **Blocked By**: Task 37, 38
+  **Blocked By**: Task 40, 41
   **Commit**: `feat(publish): itch.io one-click publish via butler`
 
 ---
 
-- [ ] 40. One-Click Publish — Google Play / App Store Prep
+- [ ] 43. One-Click Publish — Google Play / App Store Prep
 
   **What to do**:
   - Android: AAB 빌드, 스토어 메타데이터 생성 (AI가 설명/스크린샷 초안)
@@ -1289,12 +1379,12 @@ Wave 4 (Phase 4-6 — Mixed parallel):
   - Fastlane: `https://fastlane.tools/`
   - App Store Connect API: `https://developer.apple.com/app-store-connect/api/`
 
-  **Blocked By**: Task 37
+  **Blocked By**: Task 40
   **Commit**: `feat(publish): mobile store preparation with AI-generated metadata`
 
 ---
 
-- [ ] 41. One-Click Publish — Steam / Web Deploy
+- [ ] 44. One-Click Publish — Steam / Web Deploy
 
   **What to do**:
   - Steam: Steamworks SDK 연동, depot 빌드, 스토어 페이지 메타데이터
@@ -1308,7 +1398,7 @@ Wave 4 (Phase 4-6 — Mixed parallel):
   - SteamCMD: `https://developer.valvesoftware.com/wiki/SteamCMD`
   - Netlify CLI: `https://docs.netlify.com/cli/get-started/`
 
-  **Blocked By**: Task 37
+  **Blocked By**: Task 40
   **Commit**: `feat(publish): Steam depot build and web deploy integration`
 
 ---
@@ -1334,9 +1424,11 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 | 19-23 | `feat(polish): <feature>` | Various |
 | 24-28 | `feat(backend): <feature>` | packages/backend/, packages/web/ |
 | 29-34 | `feat(expansion): <feature>` | Various |
-| 35-36 | `feat(history): <feature>` | packages/electron/, packages/shared/ |
-| 37-38 | `feat(build): <feature>` | packages/godot-manager/, packages/electron/ |
-| 39-41 | `feat(publish): <feature>` | packages/electron/, new publish module |
+| 35 | `feat(mcp): Godot MCP integration` | packages/agents/, packages/godot-manager/ |
+| 36-37 | `feat(plugins): <feature>` | packages/godot-manager/, packages/electron/ |
+| 38-39 | `feat(history): <feature>` | packages/electron/, packages/shared/ |
+| 40-41 | `feat(build): <feature>` | packages/godot-manager/, packages/electron/ |
+| 42-44 | `feat(publish): <feature>` | packages/electron/, new publish module |
 
 ---
 
