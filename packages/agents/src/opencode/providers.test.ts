@@ -9,6 +9,18 @@ const settingsPath = join(configDir, 'game-builder-settings.json')
 
 mock.module('node:os', () => ({
   homedir: () => testDir,
+  tmpdir,
+}))
+
+mock.module('./config', () => ({
+  OPENCODE_PORT: 4096,
+  OPENCODE_BASE_URL: 'http://localhost:4096',
+  OPENCODE_HEALTH_URL: 'http://localhost:4096/global/health',
+  OPENCODE_CONFIG_DIR: configDir,
+  OPENCODE_CONFIG_PATH: join(configDir, 'opencode.json'),
+  ensureConfig: () => ({ $schema: 'https://opencode.ai/config.json', provider: {} }),
+  readConfig: () => null,
+  getDefaultModel: () => ({ providerID: 'openrouter', modelID: 'anthropic/claude-sonnet-4.5' }),
 }))
 
 mock.module('@opencode-ai/sdk', () => ({

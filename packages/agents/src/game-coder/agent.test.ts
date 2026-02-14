@@ -37,9 +37,28 @@ const mockCheckOnly = mock((_projectPath: string, _scriptPath?: string) =>
 mock.module('../opencode/client', () => ({
   createSession: mockCreateSession,
   sendPrompt: mockSendPrompt,
+  setDirectory: () => {},
+  getDirectory: () => '',
+  getClient: () => ({}),
+  resetClient: () => {},
+  listSessions: async () => [],
+  deleteSession: async () => {},
+  sendPromptAsync: async () => {},
+  listAgents: async () => [],
+  respondToPermission: async () => {},
+  replyToQuestion: async () => {},
+  rejectQuestion: async () => {},
+  subscribeEvents: async () => ({ error: null }),
 }))
 
 mock.module('../opencode/config', () => ({
+  OPENCODE_PORT: 4096,
+  OPENCODE_BASE_URL: 'http://localhost:4096',
+  OPENCODE_HEALTH_URL: 'http://localhost:4096/global/health',
+  OPENCODE_CONFIG_DIR: '/tmp/mock-opencode-config',
+  OPENCODE_CONFIG_PATH: '/tmp/mock-opencode-config/opencode.json',
+  ensureConfig: () => ({ $schema: 'https://opencode.ai/config.json', provider: {} }),
+  readConfig: () => null,
   getDefaultModel: mockGetDefaultModel,
 }))
 
