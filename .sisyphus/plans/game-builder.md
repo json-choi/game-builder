@@ -100,7 +100,6 @@ Build a production-quality Electron desktop application that enables users to cr
 ### Must NOT Have (Guardrails)
 - ❌ 3D game support in v1 (2D only — 3D is v2+)
 - ❌ Team collaboration / real-time multiplayer editing (v2+)
-- ❌ Cross-platform mobile export in v1 (local "Run" button only — export is v2+)
 - ❌ Concurrent agent file writes (sequential turn-taking only)
 - ❌ Web-based game builder (web is landing+login only)
 - ❌ Unvalidated AI output written to project files
@@ -184,6 +183,15 @@ Phase 6 — Asset Generation & Expansion (GATE: PixelLab generates assets)
 ├── Task 32: Tab System (Left Panel)
 ├── Task 33: Cost Tracking & Usage UI
 └── Task 34: Godot Build/Export Integration
+
+Phase 7 — Work Log & One-Click Publish (GATE: Build+publish works end-to-end)
+├── Task 35: Git-like Work Log (project history, snapshots, diff view)
+├── Task 36: Auto-Commit System (AI 작업 단위별 자동 스냅샷)
+├── Task 37: Multi-Platform Build Pipeline (Desktop/Web/Mobile export presets)
+├── Task 38: Build Progress UI (빌드 상태, 로그, 에러 표시)
+├── Task 39: One-Click Publish — itch.io Integration
+├── Task 40: One-Click Publish — Google Play / App Store Prep
+└── Task 41: One-Click Publish — Steam / Web Deploy
 ```
 
 ### Parallel Execution Waves
@@ -1172,6 +1180,139 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 
 ---
 
+### Phase 7 — Work Log & One-Click Publish
+
+> **핵심 인식**: 이 앱은 "OpenCode Desktop + Godot 통합 IDE"이다.
+> AI가 코드를 쓰고, 프리뷰로 확인하고, 작업 로그로 히스토리를 추적하고,
+> 원클릭으로 빌드 → 스토어 출시까지 하는 것이 최종 목표.
+
+- [ ] 35. Git-like Work Log (Project History)
+
+  **What to do**:
+  - 프로젝트 디렉토리를 Git으로 자동 관리 (`git init` on project create)
+  - Work Log 패널 (좌측 탭): 커밋 히스토리 타임라인, diff 뷰
+  - 각 커밋에 AI 작업 요약 자동 포함 (커밋 메시지 = AI가 한 작업)
+  - 스냅샷 간 diff 비교 (어떤 파일이 바뀌었는지)
+  - 특정 스냅샷으로 롤백 기능
+  - UI: 깔끔한 타임라인 뷰 (시간, 작업 설명, 변경 파일 수)
+
+  **Must NOT do**:
+  - 리모트 Git 연동 (GitHub push 등은 v2+)
+  - 브랜치/머지 UI (단일 히스토리 라인만)
+
+  **Blocked By**: Task 22 (Project Management)
+  **Commit**: `feat(history): git-based work log with timeline and diff view`
+
+---
+
+- [ ] 36. Auto-Commit System (AI 작업 단위별 자동 스냅샷)
+
+  **What to do**:
+  - AI 에이전트가 파일을 수정할 때마다 자동 커밋
+  - 커밋 메시지: `[agent-name] task description` (예: `[game-coder] Created player movement script`)
+  - Orchestrator 단위로 하나의 "세션"을 묶어서 표시
+  - 유저가 수동으로 "Save Checkpoint" 할 수 있는 버튼
+  - 자동 커밋은 squash 옵션 (너무 많은 커밋 방지)
+
+  **Blocked By**: Task 35
+  **Commit**: `feat(history): auto-commit on AI file changes with session grouping`
+
+---
+
+- [ ] 37. Multi-Platform Build Pipeline
+
+  **What to do**:
+  - 빌드 타겟 선택 UI: Desktop (Windows/macOS/Linux), Web (HTML5), Mobile (Android/iOS)
+  - Godot export templates 자동 다운로드 및 관리
+  - 플랫폼별 설정 UI (아이콘, 앱 이름, 패키지명, 버전)
+  - `godot --headless --export-release` 래핑
+  - 빌드 아티팩트 관리 (output 디렉토리, 이전 빌드 정리)
+  - Android: keystore 생성/관리, APK/AAB 빌드
+  - iOS: Xcode project export (Mac에서만)
+  - Web: HTML5 + WASM 번들, 최적화 옵션
+
+  **References**:
+  - Godot export presets: `https://docs.godotengine.org/en/stable/tutorials/export/`
+  - Godot Android export: `https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html`
+  - Godot iOS export: `https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_ios.html`
+
+  **Blocked By**: Task 34 (Godot Build/Export Integration)
+  **Commit**: `feat(build): multi-platform build pipeline with template management`
+
+---
+
+- [ ] 38. Build Progress UI
+
+  **What to do**:
+  - 빌드 진행률 표시 (프로그레스 바, 단계별 상태)
+  - 실시간 빌드 로그 스트리밍 (Godot export stdout/stderr)
+  - 에러 발생 시 파싱하여 AI에게 자동 수정 요청 옵션
+  - 빌드 성공 시: 파일 위치 표시, "Open Folder" 버튼
+  - 빌드 히스토리: 이전 빌드 결과 목록
+
+  **Blocked By**: Task 37
+  **Commit**: `feat(build): build progress UI with log streaming and error handling`
+
+---
+
+- [ ] 39. One-Click Publish — itch.io Integration
+
+  **What to do**:
+  - itch.io API 연동 (butler CLI 사용)
+  - butler 자동 다운로드 및 설치
+  - itch.io 로그인 (API key 기반)
+  - 게임 페이지 정보 입력 UI (제목, 설명, 태그, 커버 이미지)
+  - "Publish to itch.io" 버튼: 빌드 → butler push → 완료
+  - 멀티 플랫폼 채널 자동 매핑 (windows, mac, linux, web)
+  - 업로드 진행률 표시
+
+  **References**:
+  - butler CLI: `https://itch.io/docs/butler/`
+  - itch.io API: `https://itch.io/docs/api/serverside`
+
+  **Blocked By**: Task 37, 38
+  **Commit**: `feat(publish): itch.io one-click publish via butler`
+
+---
+
+- [ ] 40. One-Click Publish — Google Play / App Store Prep
+
+  **What to do**:
+  - Android: AAB 빌드, 스토어 메타데이터 생성 (AI가 설명/스크린샷 초안)
+  - iOS: Xcode archive, App Store Connect 메타데이터
+  - 스토어 에셋 생성 도우미 (AI가 스토어 설명, 키워드 제안)
+  - 체크리스트 UI: 출시 전 필수 항목 확인 (아이콘, 스크린샷, 연령 등급 등)
+  - Fastlane 연동 옵션 (자동 업로드)
+
+  **References**:
+  - Google Play Console API: `https://developers.google.com/android-publisher`
+  - Fastlane: `https://fastlane.tools/`
+  - App Store Connect API: `https://developer.apple.com/app-store-connect/api/`
+
+  **Blocked By**: Task 37
+  **Commit**: `feat(publish): mobile store preparation with AI-generated metadata`
+
+---
+
+- [ ] 41. One-Click Publish — Steam / Web Deploy
+
+  **What to do**:
+  - Steam: Steamworks SDK 연동, depot 빌드, 스토어 페이지 메타데이터
+  - Web: Netlify/Vercel/GitHub Pages 원클릭 배포
+  - Web 빌드 시 SharedArrayBuffer 헤더 자동 설정
+  - Steam 앱 ID 설정, 업적/리더보드 스캐폴딩 (선택)
+  - 배포 상태 대시보드 (어디에 몇 버전이 올라가 있는지)
+
+  **References**:
+  - Steamworks: `https://partner.steamgames.com/doc/sdk`
+  - SteamCMD: `https://developer.valvesoftware.com/wiki/SteamCMD`
+  - Netlify CLI: `https://docs.netlify.com/cli/get-started/`
+
+  **Blocked By**: Task 37
+  **Commit**: `feat(publish): Steam depot build and web deploy integration`
+
+---
+
 ## Commit Strategy
 
 | After Task | Message | Files |
@@ -1193,6 +1334,9 @@ Wave 4 (Phase 4-6 — Mixed parallel):
 | 19-23 | `feat(polish): <feature>` | Various |
 | 24-28 | `feat(backend): <feature>` | packages/backend/, packages/web/ |
 | 29-34 | `feat(expansion): <feature>` | Various |
+| 35-36 | `feat(history): <feature>` | packages/electron/, packages/shared/ |
+| 37-38 | `feat(build): <feature>` | packages/godot-manager/, packages/electron/ |
+| 39-41 | `feat(publish): <feature>` | packages/electron/, new publish module |
 
 ---
 
@@ -1222,6 +1366,9 @@ curl -s http://localhost:3001/api/health
 - [ ] All "Must NOT Have" items absent
 - [ ] Electron app launches and shows split panel
 - [ ] Chat produces working Godot games
+- [ ] Work log tracks all AI changes with rollback
+- [ ] Multi-platform build (Desktop/Web/Mobile) works
+- [ ] One-click publish to at least one store (itch.io)
 - [ ] Multiple agents collaborate on game creation
 - [ ] Auth works (web deep link + native)
 - [ ] PixelLab generates game assets
