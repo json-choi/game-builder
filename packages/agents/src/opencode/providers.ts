@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { OPENCODE_CONFIG_DIR } from "./config";
-import { getClient, getDirectory } from "./client";
+import { getClient } from "./client";
 
 export interface ProviderModel {
   id: string;
@@ -127,9 +127,8 @@ export async function setAuthKey(providerId: string, apiKey: string): Promise<vo
   saveKeyLocally(providerId, apiKey);
   const client = getClient();
   await client.auth.set({
-    query: { directory: getDirectory() },
-    path: { id: providerId },
-    body: { type: "api", key: apiKey },
+    providerID: providerId,
+    auth: { type: "api", key: apiKey },
   });
 }
 
@@ -145,10 +144,8 @@ export function getAuthStatus(): Record<string, boolean> {
 export async function removeAuth(providerId: string): Promise<void> {
   saveKeyLocally(providerId, "");
   const client = getClient();
-  await client.auth.set({
-    query: { directory: getDirectory() },
-    path: { id: providerId },
-    body: { type: "api", key: "" },
+  await client.auth.remove({
+    providerID: providerId,
   });
 }
 

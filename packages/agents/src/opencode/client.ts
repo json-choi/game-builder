@@ -1,4 +1,4 @@
-import { createOpencodeClient } from "@opencode-ai/sdk";
+import { createOpencodeClient } from "@opencode-ai/sdk/v2";
 import { OPENCODE_BASE_URL } from "./config";
 
 export type OpencodeClient = ReturnType<typeof createOpencodeClient>;
@@ -55,15 +55,11 @@ export function resetClient(): void {
   clientInstance = null;
 }
 
-function dirQuery() {
-  return { query: { directory: currentDirectory } };
-}
-
 export async function createSession(title: string): Promise<SessionInfo> {
   const client = getClient();
   const result = await client.session.create({
-    ...dirQuery(),
-    body: { title },
+    directory: currentDirectory,
+    title,
   });
 
   if (!result.data?.id) {
@@ -78,7 +74,9 @@ export async function createSession(title: string): Promise<SessionInfo> {
 
 export async function listSessions(): Promise<SessionInfo[]> {
   const client = getClient();
-  const result = await client.session.list(dirQuery());
+  const result = await client.session.list({
+    directory: currentDirectory,
+  });
 
   if (!result.data) return [];
 
@@ -91,33 +89,31 @@ export async function listSessions(): Promise<SessionInfo[]> {
 export async function deleteSession(sessionId: string): Promise<void> {
   const client = getClient();
   await client.session.delete({
-    ...dirQuery(),
-    path: { id: sessionId },
+    sessionID: sessionId,
+    directory: currentDirectory,
   });
 }
 
 export async function sendPrompt(options: PromptOptions): Promise<PromptResponse> {
   const client = getClient();
 
-  const body: Record<string, unknown> = {
+  const params: Parameters<typeof client.session.prompt>[0] = {
+    sessionID: options.sessionId,
+    directory: currentDirectory,
     parts: [{ type: "text" as const, text: options.text }],
   };
 
   if (options.model) {
-    body.model = options.model;
+    params.model = options.model;
   }
   if (options.agent) {
-    body.agent = options.agent;
+    params.agent = options.agent;
   }
   if (options.tools) {
-    body.tools = options.tools;
+    params.tools = options.tools;
   }
 
-  const result = await client.session.prompt({
-    ...dirQuery(),
-    path: { id: options.sessionId },
-    body: body as Parameters<typeof client.session.prompt>[0]["body"],
-  });
+  const result = await client.session.prompt(params);
 
   const parts = (result.data?.parts as Array<{ type: string; [key: string]: unknown }>) ?? [];
   const textPart = parts.find((p) => p.type === "text");
@@ -132,45 +128,45 @@ export async function sendPrompt(options: PromptOptions): Promise<PromptResponse
 export async function sendPromptAsync(options: PromptOptions): Promise<void> {
   const client = getClient();
 
-  const body: Record<string, unknown> = {
+  const params: Parameters<typeof client.session.promptAsync>[0] = {
+    sessionID: options.sessionId,
+    directory: currentDirectory,
     parts: [{ type: "text" as const, text: options.text }],
   };
 
   if (options.model) {
-    body.model = options.model;
+    params.model = options.model;
   }
   if (options.agent) {
-    body.agent = options.agent;
+    params.agent = options.agent;
   }
   if (options.tools) {
-    body.tools = options.tools;
+    params.tools = options.tools;
   }
 
-  await client.session.promptAsync({
-    ...dirQuery(),
-    path: { id: options.sessionId },
-    body: body as Parameters<typeof client.session.promptAsync>[0]["body"],
-  });
+  await client.session.promptAsync(params);
 }
 
 export async function listAgents(): Promise<
   Array<{ name: string; [key: string]: unknown }>
 > {
   const client = getClient();
-  const result = await client.app.agents(dirQuery());
+  const result = await client.app.agents({
+    directory: currentDirectory,
+  });
   return (result.data as Array<{ name: string; [key: string]: unknown }>) ?? [];
 }
 
 export async function respondToPermission(
-  sessionId: string,
+  _sessionId: string,
   permissionId: string,
   response: "once" | "always" | "reject" = "always"
 ): Promise<void> {
   const client = getClient();
-  await client.postSessionIdPermissionsPermissionId({
-    ...dirQuery(),
-    path: { id: sessionId, permissionID: permissionId },
-    body: { response },
+  await client.permission.reply({
+    requestID: permissionId,
+    directory: currentDirectory,
+    reply: response,
   });
 }
 
@@ -181,7 +177,7 @@ export async function replyToQuestion(
   const client = getClient();
   await client.question.reply({
     requestID,
-    ...dirQuery(),
+    directory: currentDirectory,
     answers,
   });
 }
@@ -190,7 +186,7 @@ export async function rejectQuestion(requestID: string): Promise<void> {
   const client = getClient();
   await client.question.reject({
     requestID,
-    ...dirQuery(),
+    directory: currentDirectory,
   });
 }
 
@@ -198,7 +194,9 @@ export async function subscribeEvents(): Promise<{
   stream: AsyncIterable<SSEEvent>;
 }> {
   const client = getClient();
-  const result = await client.event.subscribe(dirQuery());
+  const result = await client.event.subscribe({
+    directory: currentDirectory,
+  });
 
   return {
     stream: result.stream as AsyncIterable<SSEEvent>,

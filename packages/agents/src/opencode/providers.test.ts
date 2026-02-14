@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
-import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs'
+import { mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -22,6 +22,18 @@ mock.module('./client', () => ({
     auth: { set: mock(() => Promise.resolve()) },
   }),
   getDirectory: () => '/tmp',
+  setDirectory: () => {},
+  resetClient: () => {},
+  createSession: mock(() => Promise.resolve({ id: 'ses_mock', title: '' })),
+  listSessions: mock(() => Promise.resolve([])),
+  deleteSession: mock(() => Promise.resolve()),
+  sendPrompt: mock(() => Promise.resolve({ text: null, parts: [], raw: {} })),
+  sendPromptAsync: mock(() => Promise.resolve()),
+  listAgents: mock(() => Promise.resolve([])),
+  respondToPermission: mock(() => Promise.resolve()),
+  replyToQuestion: mock(() => Promise.resolve()),
+  rejectQuestion: mock(() => Promise.resolve()),
+  subscribeEvents: mock(() => Promise.resolve({ stream: [] })),
 }))
 
 const {

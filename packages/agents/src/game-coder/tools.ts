@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
+import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { checkOnly, type GodotCliResult } from '@game-builder/godot-manager'
 
