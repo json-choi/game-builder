@@ -5,14 +5,16 @@
 - [x] Task 9: Game Coder Agent — 검증 완료, 21개 테스트 추가 (74c313a)
 - [x] Task 10: Chat UI + Streaming Response — 검증 완료, useChat 테스트 추가 (c3b0510)
 - [x] Task 11: Game Preview Integration — 버그 수정 (ca72132) + usePreview 테스트 20개 추가
+- [x] Task 12: Agent Architecture — v2 SDK 마이그레이션, mock 격리 수정, 189 tests pass (818be46)
 - [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview
 
+## Skipped
+- [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
+
 ## Current
-- [ ] Task 12: Agent Architecture — 코드 존재, 검증 필요
+- [ ] Task 14: Game Designer Agent
 
 ## Queue (순서대로)
-- [ ] Task 13: Orchestrator Agent
-- [ ] Task 14: Game Designer Agent
 - [ ] Task 15: Scene Builder Agent
 - [ ] Task 16: Debugger Agent
 - [ ] Task 17: Reviewer Agent
@@ -45,9 +47,10 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T00:22:00+09:00
+2026-02-15T08:27:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
 - bun mock.module은 cross-file 오염 주의
 - OpenCode 크래시 시 해당 Task부터 재시작
+- Task 13: OpenCode titlecase 버그 (locale.ts:3) 2회 연속 발생으로 skip됨
