@@ -45,3 +45,33 @@ export {
   createProject,
   validateProjectStructure,
 } from "./project.js";
+
+export {
+  type PreviewStatus,
+  type PreviewState,
+  type PreviewManager,
+  createPreviewManager,
+} from "./preview.js";
+
+export {
+  parseGodotErrors,
+  formatErrorsForAI,
+  type GodotError,
+} from "./error-parser.js";
+
+export {
+  scaffoldProject,
+  getAvailableTemplates,
+  type ScaffoldOptions,
+} from "./scaffold.js";
+
+export {
+  type ExportPreset,
+  type ExportOptions,
+  type ExportResult,
+  getExportPresets,
+  createDefaultPresets,
+  exportProject as exportGodotProject,
+  checkExportTemplates,
+  getExportTemplateUrl,
+} from "./export.js";

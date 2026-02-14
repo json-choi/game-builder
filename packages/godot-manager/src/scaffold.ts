@@ -1,10 +1,11 @@
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync, existsSync } from "fs";
-import { join, resolve, basename } from "path";
+import { join, resolve } from "path";
 import { readdirSync, statSync } from "fs";
 
 export interface ScaffoldOptions {
   name: string;
   template?: string;
+  templatesDir?: string;
   viewportWidth?: number;
   viewportHeight?: number;
 }
@@ -97,15 +98,8 @@ export function scaffoldProject(
   const absPath = resolve(projectPath);
   const templateName = options.template ?? "basic-2d";
 
-  // Resolve template path relative to this file
-  const templatePath = resolve(
-    __dirname,
-    "..",
-    "..",
-    "..",
-    "templates",
-    templateName
-  );
+  const baseDir = options.templatesDir ?? resolve(__dirname, "..", "..", "..", "templates");
+  const templatePath = resolve(baseDir, templateName);
 
   if (!existsSync(templatePath)) {
     throw new Error(`Template not found: ${templatePath}`);
