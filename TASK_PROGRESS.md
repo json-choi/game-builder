@@ -4,13 +4,13 @@
 - [x] Task 1-8: Phase 0-1 (Spikes + Skeleton)
 - [x] Task 9: Game Coder Agent — 검증 완료, 21개 테스트 추가 (74c313a)
 - [x] Task 10: Chat UI + Streaming Response — 검증 완료, useChat 테스트 추가 (c3b0510)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat
+- [x] Task 11: Game Preview Integration — 버그 수정 (ca72132) + usePreview 테스트 20개 추가
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview
 
 ## Current
-- [ ] Task 11: Game Preview Integration — 코드 존재, 검증 필요
+- [ ] Task 12: Agent Architecture — 코드 존재, 검증 필요
 
 ## Queue (순서대로)
-- [ ] Task 12: Agent Architecture — 코드 존재, 검증 필요
 - [ ] Task 13: Orchestrator Agent
 - [ ] Task 14: Game Designer Agent
 - [ ] Task 15: Scene Builder Agent
@@ -45,7 +45,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-14T23:08:00+09:00
+2026-02-15T00:22:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
