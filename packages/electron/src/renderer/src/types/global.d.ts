@@ -146,12 +146,12 @@ interface ProjectAPI {
 }
 
 interface AgentProgressEvent {
-  agent: string
-  type: string
+  type: 'agent-start' | 'step-start' | 'step-end' | 'file-changed' | 'complete' | 'error'
+  agent?: string
   step?: number
   totalSteps?: number
   message?: string
-  files?: string[]
+  filesChanged?: string[]
 }
 
 interface AgentsAPI {

@@ -18,7 +18,7 @@ interface ProgressState {
 }
 
 interface ProgressEvent {
-  type: 'agent-start' | 'step-start' | 'step-end' | 'file-changed' | 'complete'
+  type: 'agent-start' | 'step-start' | 'step-end' | 'file-changed' | 'complete' | 'error'
   agent?: string
   step?: number
   totalSteps?: number
@@ -80,6 +80,15 @@ export function useProgress() {
               const lastStep = newState.steps[newState.steps.length - 1]
               lastStep.filesChanged = [...lastStep.filesChanged, ...event.filesChanged]
             }
+            break
+
+          case 'error':
+            if (newState.steps.length > 0) {
+              const lastStep = newState.steps[newState.steps.length - 1]
+              lastStep.status = 'error'
+              if (event.message) lastStep.message = event.message
+            }
+            newState.active = false
             break
 
           case 'complete':

@@ -128,4 +128,121 @@ describe('progress-reporter', () => {
       'complete',
     ])
   })
+
+  test('each method invokes callback exactly once', () => {
+    let callCount = 0
+    const reporter = createProgressReporter(() => { callCount++ })
+
+    reporter.agentStart('a')
+    expect(callCount).toBe(1)
+
+    reporter.stepStart('a', 1, 'msg')
+    expect(callCount).toBe(2)
+
+    reporter.stepEnd('a')
+    expect(callCount).toBe(3)
+
+    reporter.fileChanged([])
+    expect(callCount).toBe(4)
+
+    reporter.complete()
+    expect(callCount).toBe(5)
+
+    reporter.error('err')
+    expect(callCount).toBe(6)
+  })
+
+  test('multiple reporters from createProgressReporter are independent', () => {
+    const events1: AgentProgressEvent[] = []
+    const events2: AgentProgressEvent[] = []
+    const reporter1 = createProgressReporter((e) => events1.push(e))
+    const reporter2 = createProgressReporter((e) => events2.push(e))
+
+    reporter1.agentStart('agent-a', 2)
+    reporter2.agentStart('agent-b', 3)
+    reporter1.complete()
+
+    expect(events1).toHaveLength(2)
+    expect(events2).toHaveLength(1)
+    expect(events1[0].agent).toBe('agent-a')
+    expect(events2[0].agent).toBe('agent-b')
+  })
+
+  test('full lifecycle: start → steps → error flow', () => {
+    const { events, reporter } = collectEvents()
+    reporter.agentStart('debugger', 2)
+    reporter.stepStart('debugger', 1, 'Analyzing')
+    reporter.stepEnd('debugger', 'Found issues', ['main.gd'])
+    reporter.stepStart('debugger', 2, 'Fixing')
+    reporter.error('Could not fix: syntax error')
+
+    expect(events).toHaveLength(5)
+    expect(events.map((e) => e.type)).toEqual([
+      'agent-start',
+      'step-start',
+      'step-end',
+      'step-start',
+      'error',
+    ])
+    expect(events[4].message).toBe('Could not fix: syntax error')
+  })
+
+  test('full lifecycle: multi-agent orchestration flow', () => {
+    const { events, reporter } = collectEvents()
+
+    // Orchestrator plans
+    reporter.agentStart('orchestrator', 3)
+    reporter.stepStart('orchestrator', 1, 'Creating plan')
+    reporter.stepEnd('orchestrator', 'Plan ready')
+
+    // Designer executes
+    reporter.stepStart('designer', 2, 'Designing game')
+    reporter.stepEnd('designer', 'Design complete')
+
+    // Coder executes
+    reporter.stepStart('coder', 3, 'Writing code')
+    reporter.fileChanged(['player.gd', 'enemy.gd'])
+    reporter.stepEnd('coder', 'Code written', ['main.tscn'])
+
+    reporter.complete()
+
+    expect(events).toHaveLength(9)
+
+    const stepStarts = events.filter((e) => e.type === 'step-start')
+    expect(stepStarts.map((e) => e.agent)).toEqual(['orchestrator', 'designer', 'coder'])
+
+    const fileEvents = events.filter((e) => e.type === 'file-changed')
+    expect(fileEvents).toHaveLength(1)
+    expect(fileEvents[0].filesChanged).toEqual(['player.gd', 'enemy.gd'])
+  })
+
+  describe('agentStart', () => {
+    test('totalSteps defaults to undefined when 0 is passed', () => {
+      const { events, reporter } = collectEvents()
+      reporter.agentStart('agent', 0)
+      expect(events[0]).toEqual({ type: 'agent-start', agent: 'agent', totalSteps: 0 })
+    })
+  })
+
+  describe('stepStart', () => {
+    test('preserves step number 0', () => {
+      const { events, reporter } = collectEvents()
+      reporter.stepStart('agent', 0, 'Step zero')
+      expect(events[0].step).toBe(0)
+    })
+
+    test('preserves empty message string', () => {
+      const { events, reporter } = collectEvents()
+      reporter.stepStart('agent', 1, '')
+      expect(events[0].message).toBe('')
+    })
+  })
+
+  describe('error', () => {
+    test('preserves empty error message', () => {
+      const { events, reporter } = collectEvents()
+      reporter.error('')
+      expect(events[0]).toEqual({ type: 'error', message: '' })
+    })
+  })
 })
