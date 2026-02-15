@@ -54,33 +54,72 @@ export const RightPanel: React.FC<RightPanelProps> = ({ projectPath }) => {
           const isLastInGroup = !nextMsg || nextMsg.role !== msg.role
           const showAvatar = isFirstInGroup
 
+          // Find tool events associated with this assistant message
+          const msgToolEvents = msg.role === 'assistant' && msg.id
+            ? toolEvents.filter((te) => {
+                const rawId = msg.id!.startsWith('assistant-')
+                  ? msg.id!.slice('assistant-'.length)
+                  : msg.id!
+                return te.messageID === rawId
+              })
+            : []
+
           return (
-            <ChatMessage
-              key={msg.id || index}
-              role={msg.role}
-              content={msg.content}
-              timestamp={msg.timestamp}
-              showAvatar={showAvatar}
-              isFirstInGroup={isFirstInGroup}
-              isLastInGroup={isLastInGroup}
-              isStreaming={isLoading && msg.role === 'assistant' && index === messages.length - 1}
-            />
+            <React.Fragment key={msg.id || index}>
+              {msgToolEvents.length > 0 && (
+                <div className="tool-events">
+                  {msgToolEvents.map((event) => (
+                    <ToolIndicator
+                      key={event.id}
+                      tool={event.tool}
+                      args={event.args}
+                      status={event.status}
+                      projectPath={projectPath}
+                    />
+                  ))}
+                </div>
+              )}
+              <ChatMessage
+                role={msg.role}
+                content={msg.content}
+                timestamp={msg.timestamp}
+                showAvatar={showAvatar}
+                isFirstInGroup={isFirstInGroup}
+                isLastInGroup={isLastInGroup}
+                isStreaming={isLoading && msg.role === 'assistant' && index === messages.length - 1}
+              />
+            </React.Fragment>
           )
         })}
 
-        {toolEvents.length > 0 && (
-          <div className="tool-events">
-            {toolEvents.map((event) => (
-              <ToolIndicator 
-                key={event.id}
-                tool={event.tool}
-                args={event.args}
-                status={event.status}
-                projectPath={projectPath}
-              />
-            ))}
-          </div>
-        )}
+        {/* Show unmatched tool events (no messageID yet or orphaned) */}
+        {(() => {
+          const matchedIds = new Set<string>()
+          messages.forEach((msg) => {
+            if (msg.role === 'assistant' && msg.id) {
+              const rawId = msg.id.startsWith('assistant-')
+                ? msg.id.slice('assistant-'.length)
+                : msg.id
+              toolEvents.forEach((te) => {
+                if (te.messageID === rawId) matchedIds.add(te.id)
+              })
+            }
+          })
+          const unmatched = toolEvents.filter((te) => !matchedIds.has(te.id))
+          return unmatched.length > 0 ? (
+            <div className="tool-events">
+              {unmatched.map((event) => (
+                <ToolIndicator
+                  key={event.id}
+                  tool={event.tool}
+                  args={event.args}
+                  status={event.status}
+                  projectPath={projectPath}
+                />
+              ))}
+            </div>
+          ) : null
+        })()}
 
         <ProgressPanel />
 

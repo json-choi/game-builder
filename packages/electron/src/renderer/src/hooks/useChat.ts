@@ -21,6 +21,7 @@ export interface ToolEvent {
   status: 'pending' | 'running' | 'done' | 'error'
   title?: string
   timestamp: number
+  messageID?: string
 }
 
 // SDK event types: message.updated (metadata), message.part.updated (streaming text/tools),
@@ -266,6 +267,7 @@ export function useChat(projectPath: string) {
                         : toolPart.state.status,
                     title: toolPart.state.title,
                     timestamp: existing?.timestamp || Date.now(),
+                    messageID: toolPart.messageID,
                   }
                   if (existing) {
                     return prev.map((t) => (t.id === toolPart.id ? toolEvent : t))
@@ -374,7 +376,6 @@ export function useChat(projectPath: string) {
       setMessages((prev) => [...prev, userMsg])
       setIsLoading(true)
       setError(null)
-      setToolEvents([])
       textPartsRef.current.clear()
 
       window.api.chat
