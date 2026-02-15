@@ -40,12 +40,14 @@
 
 - [x] Task 32: Tab System (Left Panel) — 테스트 40개 추가, 882 tests pass (37c7577)
 
+- [x] Task 33: Cost Tracking & Usage UI — 테스트 추가 (ebddcc0)
+
+- [x] Task 34: Godot Build/Export Integration — export.ts 검증 완료, 테스트 35개 추가 (16→51), 978 tests pass
+
 ## Current
-- [ ] Task 33: Cost Tracking & Usage UI
+- [ ] Task 35: Godot MCP Integration
 
 ## Queue (순서대로)
-- [ ] Task 34: Godot Build/Export Integration
-- [ ] Task 35: Godot MCP Integration
 - [ ] Task 36: Plugin Manager
 - [ ] Task 37: AI Plugin Recommender
 - [ ] Task 38: Git-like Work Log
@@ -57,7 +59,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T10:15:00+09:00
+2026-02-15T10:30:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
