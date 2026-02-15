@@ -26,12 +26,15 @@
 - [x] Task 25: Better Auth Integration — auth/schema 테스트 추가, 606 tests pass (51d198a)
 - [x] Task 26: PostgreSQL + Drizzle Schema — 3 테이블 추가, 마이그레이션 생성 (ecbb418)
 
+- [x] Task 27: Deep Link Auth Flow — deep-link-auth.ts 추출, 테스트 26개, 683 tests pass (668b645)
+
+## Skipped (continued)
+- [ ] Task 28: Web Landing Page — OpenCode titlecase 버그로 2회 크래시, skip
+
 ## Current
-- [ ] Task 27: Deep Link Auth Flow
+- [ ] Task 29: PixelLab MCP Integration
 
 ## Queue (순서대로)
-- [ ] Task 28: Web Landing Page
-- [ ] Task 29: PixelLab MCP Integration
 - [ ] Task 30: Asset Generator Agent
 - [ ] Task 31: Godot Auto-Download System
 - [ ] Task 32: Tab System (Left Panel)
