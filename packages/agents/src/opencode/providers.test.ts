@@ -25,13 +25,13 @@ mock.module('./config', () => ({
 
 mock.module('@opencode-ai/sdk', () => ({
   createOpencodeClient: () => ({
-    auth: { set: mock(() => Promise.resolve()) },
+    auth: { set: mock(() => Promise.resolve()), remove: mock(() => Promise.resolve()) },
   }),
 }))
 
 mock.module('./client', () => ({
   getClient: () => ({
-    auth: { set: mock(() => Promise.resolve()) },
+    auth: { set: mock(() => Promise.resolve()), remove: mock(() => Promise.resolve()) },
   }),
   getDirectory: () => '/tmp',
   setDirectory: () => {},
@@ -57,6 +57,8 @@ const {
   getStoredKey,
   getAgentConfigs,
   setAgentConfigs,
+  setAuthKey,
+  removeAuth,
 } = await import('./providers')
 
 describe('providers', () => {
@@ -235,6 +237,231 @@ describe('providers', () => {
       const retrieved = getAgentConfigs()
       expect(retrieved).toHaveLength(1)
       expect(retrieved[0].name).toBe('b')
+    })
+
+    test('preserves other settings when updating configs', () => {
+      const settings = {
+        activeProvider: 'anthropic',
+        activeModel: 'claude-sonnet-4-5',
+        apiKeys: { openrouter: 'key-abc' },
+        agentConfigs: [],
+      }
+      writeFileSync(settingsPath, JSON.stringify(settings), 'utf-8')
+
+      setAgentConfigs([{ name: 'game-coder', modelId: 'gpt-4o' }])
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw.activeProvider).toBe('anthropic')
+      expect(raw.apiKeys.openrouter).toBe('key-abc')
+      expect(raw.agentConfigs).toHaveLength(1)
+    })
+
+    test('can set empty configs array', () => {
+      setAgentConfigs([{ name: 'a', modelId: 'x' }])
+      setAgentConfigs([])
+
+      expect(getAgentConfigs()).toEqual([])
+    })
+  })
+
+  describe('setAuthKey', () => {
+    test('saves API key locally and calls client.auth.set', async () => {
+      await setAuthKey('openrouter', 'sk-or-test-123')
+
+      expect(getStoredKey('openrouter')).toBe('sk-or-test-123')
+    })
+
+    test('overwrites existing key for same provider', async () => {
+      await setAuthKey('anthropic', 'sk-ant-old')
+      await setAuthKey('anthropic', 'sk-ant-new')
+
+      expect(getStoredKey('anthropic')).toBe('sk-ant-new')
+    })
+
+    test('stores keys for multiple providers independently', async () => {
+      await setAuthKey('openrouter', 'sk-or-key')
+      await setAuthKey('anthropic', 'sk-ant-key')
+      await setAuthKey('openai', 'sk-oai-key')
+
+      expect(getStoredKey('openrouter')).toBe('sk-or-key')
+      expect(getStoredKey('anthropic')).toBe('sk-ant-key')
+      expect(getStoredKey('openai')).toBe('sk-oai-key')
+    })
+
+    test('preserves other settings when saving key', async () => {
+      const settings = {
+        activeProvider: 'google',
+        activeModel: 'gemini-2.5-pro',
+        apiKeys: {},
+        agentConfigs: [{ name: 'reviewer', modelId: 'gpt-4o' }],
+      }
+      writeFileSync(settingsPath, JSON.stringify(settings), 'utf-8')
+
+      await setAuthKey('openrouter', 'sk-test')
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw.activeProvider).toBe('google')
+      expect(raw.activeModel).toBe('gemini-2.5-pro')
+      expect(raw.agentConfigs).toHaveLength(1)
+      expect(raw.apiKeys.openrouter).toBe('sk-test')
+    })
+
+    test('reflects in auth status after saving', async () => {
+      await setAuthKey('openrouter', 'sk-test')
+
+      const status = getAuthStatus()
+      expect(status.openrouter).toBe(true)
+    })
+  })
+
+  describe('removeAuth', () => {
+    test('removes stored key for provider', async () => {
+      await setAuthKey('openrouter', 'sk-test-key')
+      expect(getStoredKey('openrouter')).toBe('sk-test-key')
+
+      await removeAuth('openrouter')
+      expect(getStoredKey('openrouter')).toBeNull()
+    })
+
+    test('does not affect other provider keys', async () => {
+      await setAuthKey('openrouter', 'sk-or')
+      await setAuthKey('anthropic', 'sk-ant')
+
+      await removeAuth('openrouter')
+
+      expect(getStoredKey('openrouter')).toBeNull()
+      expect(getStoredKey('anthropic')).toBe('sk-ant')
+    })
+
+    test('is idempotent for non-existent provider', async () => {
+      await removeAuth('nonexistent')
+      expect(getStoredKey('nonexistent')).toBeNull()
+    })
+
+    test('removes provider from auth status', async () => {
+      await setAuthKey('anthropic', 'sk-ant')
+      expect(getAuthStatus().anthropic).toBe(true)
+
+      await removeAuth('anthropic')
+      expect(getAuthStatus().anthropic).toBeUndefined()
+    })
+
+    test('preserves other settings when removing key', async () => {
+      const settings = {
+        activeProvider: 'anthropic',
+        activeModel: 'claude-sonnet-4-5',
+        apiKeys: { anthropic: 'sk-ant', openrouter: 'sk-or' },
+        agentConfigs: [{ name: 'coder', modelId: 'gpt-4o' }],
+      }
+      writeFileSync(settingsPath, JSON.stringify(settings), 'utf-8')
+
+      await removeAuth('anthropic')
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw.activeProvider).toBe('anthropic')
+      expect(raw.agentConfigs).toHaveLength(1)
+      expect(raw.apiKeys.openrouter).toBe('sk-or')
+      expect(raw.apiKeys.anthropic).toBeUndefined()
+    })
+  })
+
+  describe('settings persistence', () => {
+    test('creates settings file on first write', () => {
+      setActiveProvider('google', 'gemini-2.5-pro')
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw.activeProvider).toBe('google')
+      expect(raw.activeModel).toBe('gemini-2.5-pro')
+    })
+
+    test('settings file contains all default fields after write', () => {
+      setActiveProvider('openai', 'gpt-4o')
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw).toHaveProperty('activeProvider')
+      expect(raw).toHaveProperty('activeModel')
+      expect(raw).toHaveProperty('apiKeys')
+      expect(raw).toHaveProperty('agentConfigs')
+    })
+
+    test('settings file is valid JSON', () => {
+      setActiveProvider('anthropic', 'claude-sonnet-4-5')
+      const content = readFileSync(settingsPath, 'utf-8')
+      expect(() => JSON.parse(content)).not.toThrow()
+    })
+
+    test('multiple operations preserve all data', async () => {
+      setActiveProvider('openrouter', 'anthropic/claude-sonnet-4.5')
+      await setAuthKey('openrouter', 'sk-or-123')
+      setAgentConfigs([{ name: 'game-coder', modelId: 'gpt-4o' }])
+
+      const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+      expect(raw.activeProvider).toBe('openrouter')
+      expect(raw.activeModel).toBe('anthropic/claude-sonnet-4.5')
+      expect(raw.apiKeys.openrouter).toBe('sk-or-123')
+      expect(raw.agentConfigs).toHaveLength(1)
+      expect(raw.agentConfigs[0].name).toBe('game-coder')
+    })
+
+    test('setAuthKey then removeAuth results in clean state for that provider', async () => {
+      await setAuthKey('google', 'sk-goog-test')
+      expect(getStoredKey('google')).toBe('sk-goog-test')
+      expect(getAuthStatus().google).toBe(true)
+
+      await removeAuth('google')
+      expect(getStoredKey('google')).toBeNull()
+      expect(getAuthStatus().google).toBeUndefined()
+    })
+  })
+
+  describe('PROVIDER_PRESETS structure', () => {
+    test('contains google preset', () => {
+      const google = PROVIDER_PRESETS.find((p) => p.id === 'google')
+      expect(google).toBeDefined()
+      expect(google!.envVar).toBe('GOOGLE_API_KEY')
+    })
+
+    test('contains openai preset', () => {
+      const openai = PROVIDER_PRESETS.find((p) => p.id === 'openai')
+      expect(openai).toBeDefined()
+      expect(openai!.envVar).toBe('OPENAI_API_KEY')
+    })
+
+    test('all preset IDs are unique', () => {
+      const ids = PROVIDER_PRESETS.map((p) => p.id)
+      expect(new Set(ids).size).toBe(ids.length)
+    })
+
+    test('all model IDs within a preset are unique', () => {
+      for (const preset of PROVIDER_PRESETS) {
+        const modelIds = preset.models.map((m) => m.id)
+        expect(new Set(modelIds).size).toBe(modelIds.length)
+      }
+    })
+
+    test('models with thinking flag are explicitly set', () => {
+      for (const preset of PROVIDER_PRESETS) {
+        for (const model of preset.models) {
+          if (model.thinking !== undefined) {
+            expect(typeof model.thinking).toBe('boolean')
+          }
+        }
+      }
+    })
+
+    test('models with limits have valid numbers', () => {
+      for (const preset of PROVIDER_PRESETS) {
+        for (const model of preset.models) {
+          if (model.limit) {
+            if (model.limit.context !== undefined) {
+              expect(model.limit.context).toBeGreaterThan(0)
+            }
+            if (model.limit.output !== undefined) {
+              expect(model.limit.output).toBeGreaterThan(0)
+            }
+          }
+        }
+      }
     })
   })
 })
