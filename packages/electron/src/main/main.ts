@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, safeStorage } from 'electron'
 import { join } from 'path'
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs'
+import { existsSync, readdirSync, statSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
   startServer,
@@ -44,6 +44,11 @@ import {
   deleteProject,
 } from './project-manager'
 import {
+  createDeepLinkAuth,
+  saveToken,
+  type AuthUser,
+} from './deep-link-auth'
+import {
   getExportPresets,
   createDefaultPresets,
   exportGodotProject,
@@ -65,92 +70,21 @@ let mainWindow: BrowserWindow | null = null
 let pendingDeepLinkUrl: string | null = null
 const previewManager = createPreviewManager()
 
-function getTokenPath(): string {
-  const dir = join(app.getPath('userData'), 'auth')
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-  return join(dir, 'session.enc')
-}
-
-function saveToken(token: string): void {
-  if (safeStorage.isEncryptionAvailable()) {
-    const encrypted = safeStorage.encryptString(token)
-    writeFileSync(getTokenPath(), encrypted)
-  } else {
-    writeFileSync(getTokenPath(), token, 'utf-8')
-  }
-}
-
-function loadToken(): string | null {
-  const tokenPath = getTokenPath()
-  if (!existsSync(tokenPath)) return null
-  try {
-    const data = readFileSync(tokenPath)
-    if (safeStorage.isEncryptionAvailable()) {
-      return safeStorage.decryptString(data)
-    }
-    return data.toString('utf-8')
-  } catch {
-    return null
-  }
-}
-
-function clearToken(): void {
-  const tokenPath = getTokenPath()
-  if (existsSync(tokenPath)) {
-    writeFileSync(tokenPath, '')
-  }
-}
-
-interface AuthUser {
-  id: string
-  name: string
-  email: string
-  image: string | null
-}
-
-let currentUser: AuthUser | null = null
-
-async function exchangeDeviceCode(code: string): Promise<void> {
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/device/exchange`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    })
-
-    if (!response.ok) {
-      console.error('[deep-link] Device code exchange failed:', response.status)
-      return
-    }
-
-    const data = (await response.json()) as { token: string; user: AuthUser }
-    saveToken(data.token)
-    currentUser = data.user
-
+const deepLinkAuth = createDeepLinkAuth({
+  userDataPath: app.getPath('userData'),
+  backendUrl: BACKEND_URL,
+  encrypt: safeStorage.isEncryptionAvailable()
+    ? (s) => safeStorage.encryptString(s)
+    : null,
+  decrypt: safeStorage.isEncryptionAvailable()
+    ? (b) => safeStorage.decryptString(b)
+    : null,
+  onAuthStateChanged: (state) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('auth:state-changed', {
-        authenticated: true,
-        user: currentUser,
-      })
+      mainWindow.webContents.send('auth:state-changed', state)
     }
-  } catch (err) {
-    console.error('[deep-link] Exchange error:', err)
-  }
-}
-
-function handleDeepLink(url: string): void {
-  try {
-    const parsed = new URL(url)
-    if (parsed.protocol !== `${PROTOCOL}:`) return
-
-    const code = parsed.searchParams.get('code')
-    if (parsed.hostname === 'auth' && code) {
-      exchangeDeviceCode(code)
-    }
-  } catch {
-    console.error('[deep-link] Failed to parse URL:', url)
-  }
-}
+  },
+})
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -361,10 +295,11 @@ function registerOpenCodeIPC(): void {
   })
 
   ipcMain.handle('auth:get-state', async () => {
-    const token = loadToken()
+    const token = deepLinkAuth.getToken()
     if (!token) return { authenticated: false, user: null }
 
-    if (currentUser) return { authenticated: true, user: currentUser }
+    const cached = deepLinkAuth.getCurrentUser()
+    if (cached) return { authenticated: true, user: cached }
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/me`, {
@@ -372,8 +307,8 @@ function registerOpenCodeIPC(): void {
       })
       if (response.ok) {
         const data = (await response.json()) as { user: AuthUser }
-        currentUser = data.user
-        return { authenticated: true, user: currentUser }
+        deepLinkAuth.setCurrentUser(data.user)
+        return { authenticated: true, user: data.user }
       }
     } catch {
       // backend unreachable — still authenticated locally
@@ -382,8 +317,7 @@ function registerOpenCodeIPC(): void {
   })
 
   ipcMain.handle('auth:logout', () => {
-    clearToken()
-    currentUser = null
+    deepLinkAuth.logout()
     return true
   })
 
@@ -411,17 +345,21 @@ function registerOpenCodeIPC(): void {
       token: string
       user: AuthUser
     }
-    saveToken(data.token)
-    currentUser = data.user
+    saveToken(
+      app.getPath('userData'),
+      data.token,
+      safeStorage.isEncryptionAvailable() ? (s) => safeStorage.encryptString(s) : null
+    )
+    deepLinkAuth.setCurrentUser(data.user)
 
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('auth:state-changed', {
         authenticated: true,
-        user: currentUser,
+        user: data.user,
       })
     }
 
-    return { authenticated: true, user: currentUser }
+    return { authenticated: true, user: data.user }
   })
 
   ipcMain.handle('godot:start-preview', async (_event, projectPath: string) => {
@@ -534,7 +472,7 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', (_event, commandLine) => {
     const deepLinkUrl = commandLine.find((arg) => arg.startsWith(`${PROTOCOL}://`))
-    if (deepLinkUrl) handleDeepLink(deepLinkUrl)
+    if (deepLinkUrl) deepLinkAuth.handleDeepLink(deepLinkUrl)
 
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
@@ -546,7 +484,7 @@ if (!gotTheLock) {
 app.on('open-url', (event, url) => {
   event.preventDefault()
   if (mainWindow) {
-    handleDeepLink(url)
+    deepLinkAuth.handleDeepLink(url)
   } else {
     pendingDeepLinkUrl = url
   }
@@ -579,7 +517,7 @@ app.whenReady().then(async () => {
   createWindow()
 
   if (pendingDeepLinkUrl) {
-    handleDeepLink(pendingDeepLinkUrl)
+    deepLinkAuth.handleDeepLink(pendingDeepLinkUrl)
     pendingDeepLinkUrl = null
   }
 
