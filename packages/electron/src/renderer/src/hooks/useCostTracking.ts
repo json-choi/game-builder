@@ -34,7 +34,7 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'google/gemini-2.5-pro': { input: 1.25, output: 10 },
 }
 
-function estimateCostForModel(model: string, usage: TokenUsage): number {
+export function estimateCostForModel(model: string, usage: TokenUsage): number {
   const pricing = MODEL_PRICING[model]
   if (!pricing) {
     return (usage.inputTokens / 1_000_000) * 5 + (usage.outputTokens / 1_000_000) * 15
@@ -45,7 +45,7 @@ function estimateCostForModel(model: string, usage: TokenUsage): number {
   )
 }
 
-function buildStats(
+export function buildStats(
   entries: Array<AgentUsageEntry & { cost: number }>
 ): UsageStats {
   const byAgent: Record<string, UsageBreakdown> = {}
