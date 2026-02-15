@@ -3,6 +3,12 @@ import { Streamdown, type Components } from 'streamdown'
 import { code } from '@streamdown/code'
 import { CodeBlock } from './CodeBlock'
 
+interface ChatAttachment {
+  media_type: string
+  data: string
+  name?: string
+}
+
 interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
@@ -11,6 +17,7 @@ interface ChatMessageProps {
   isFirstInGroup?: boolean
   isLastInGroup?: boolean
   isStreaming?: boolean
+  attachments?: ChatAttachment[]
 }
 
 const GDSCRIPT_LANGUAGES = new Set(['gdscript', 'godot', 'gd'])
@@ -52,6 +59,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   role,
   content,
   isStreaming = false,
+  attachments,
 }) => {
   const isUser = role === 'user'
   const plugins = useMemo(() => ({ code }), [])
@@ -64,6 +72,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     <div className={`chat-message ${isUser ? 'chat-message--user' : 'chat-message--assistant'}`}>
       <div className="chat-message__content-wrapper">
         <button className="chat-message__copy-btn" onClick={handleCopy} type="button">Copy</button>
+        {attachments && attachments.length > 0 && (
+          <div className="chat-message__attachments">
+            {attachments.map((att, i) => (
+              <img
+                key={`${att.name || 'img'}-${i}`}
+                src={`data:${att.media_type};base64,${att.data}`}
+                alt={att.name || 'Attached image'}
+                className="chat-message__attachment-image"
+              />
+            ))}
+          </div>
+        )}
         {isUser ? (
           <div className="chat-message-content">{content}</div>
         ) : (

@@ -1,13 +1,67 @@
-import React, { useState, KeyboardEvent, useRef, useEffect } from 'react'
+import React, { useState, KeyboardEvent, useRef, useEffect, useCallback, DragEvent, ClipboardEvent } from 'react'
+
+const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024 // 20MB
+
+export interface ImagePreview {
+  id: string
+  file: File
+  dataUrl: string
+  media_type: string
+  base64: string
+}
 
 interface ChatInputProps {
-  onSend: (text: string) => void
+  onSend: (text: string, attachments?: Array<{ media_type: string; data: string; name?: string }>) => void
   disabled?: boolean
+}
+
+function generateId(): string {
+  return `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+async function fileToImagePreview(file: File): Promise<ImagePreview | null> {
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) return null
+  if (file.size > MAX_IMAGE_SIZE) return null
+
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      // dataUrl format: "data:<media_type>;base64,<data>"
+      const base64 = dataUrl.split(',')[1] || ''
+      resolve({
+        id: generateId(),
+        file,
+        dataUrl,
+        media_type: file.type,
+        base64,
+      })
+    }
+    reader.onerror = () => resolve(null)
+    reader.readAsDataURL(file)
+  })
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
   const [text, setText] = useState('')
+  const [images, setImages] = useState<ImagePreview[]>([])
+  const [isDragOver, setIsDragOver] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const addFiles = useCallback(async (files: FileList | File[]) => {
+    const fileArray = Array.from(files)
+    const previews = await Promise.all(fileArray.map(fileToImagePreview))
+    const valid = previews.filter((p): p is ImagePreview => p !== null)
+    if (valid.length > 0) {
+      setImages((prev) => [...prev, ...valid])
+    }
+  }, [])
+
+  const removeImage = useCallback((id: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== id))
+  }, [])
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -17,10 +71,89 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
   }
 
   const handleSend = () => {
-    if (!text.trim() || disabled) return
-    onSend(text)
+    if ((!text.trim() && images.length === 0) || disabled) return
+
+    const attachments = images.length > 0
+      ? images.map((img) => ({
+          media_type: img.media_type,
+          data: img.base64,
+          name: img.file.name,
+        }))
+      : undefined
+
+    onSend(text, attachments)
     setText('')
+    setImages([])
   }
+
+  // Clipboard paste (Ctrl+V)
+  const handlePaste = useCallback(
+    (e: ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = e.clipboardData?.items
+      if (!items) return
+
+      const imageFiles: File[] = []
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.kind === 'file' && ACCEPTED_IMAGE_TYPES.includes(item.type)) {
+          const file = item.getAsFile()
+          if (file) imageFiles.push(file)
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        e.preventDefault()
+        addFiles(imageFiles)
+      }
+    },
+    [addFiles]
+  )
+
+  // Drag and Drop
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragOver(false)
+
+      const files = e.dataTransfer?.files
+      if (files && files.length > 0) {
+        addFiles(files)
+      }
+    },
+    [addFiles]
+  )
+
+  // File input click
+  const handleFileSelect = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files
+      if (files && files.length > 0) {
+        addFiles(files)
+      }
+      // Reset input so same file can be re-selected
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    },
+    [addFiles]
+  )
 
   // Auto-resize textarea
   useEffect(() => {
@@ -31,26 +164,89 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
     }
   }, [text])
 
+  const canSend = (text.trim() || images.length > 0) && !disabled
+
   return (
-    <div className="chat-input-container">
-      <textarea
-        ref={textareaRef}
-        className="chat-input-textarea"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Ask a question or describe a task..."
-        disabled={disabled}
-        rows={1}
-      />
-      <button 
-        className="chat-send-btn"
-        onClick={handleSend}
-        disabled={!text.trim() || disabled}
-        aria-label="Send message"
-      >
-        ↑
-      </button>
+    <div
+      className={`chat-input-container${isDragOver ? ' chat-input-container--dragover' : ''}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Image Previews */}
+      {images.length > 0 && (
+        <div className="chat-input-previews">
+          {images.map((img) => (
+            <div key={img.id} className="chat-input-preview">
+              <img
+                src={img.dataUrl}
+                alt={img.file.name}
+                className="chat-input-preview__image"
+              />
+              <button
+                className="chat-input-preview__remove"
+                onClick={() => removeImage(img.id)}
+                type="button"
+                aria-label={`Remove ${img.file.name}`}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="chat-input-row">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_IMAGE_TYPES.join(',')}
+          multiple
+          className="chat-input-file-input"
+          onChange={handleFileInputChange}
+          style={{ display: 'none' }}
+        />
+
+        {/* Attach button */}
+        <button
+          className="chat-input-attach-btn"
+          onClick={handleFileSelect}
+          disabled={disabled}
+          type="button"
+          aria-label="Attach image"
+          title="Attach image (png, jpg, gif, webp)"
+        >
+          📎
+        </button>
+
+        <textarea
+          ref={textareaRef}
+          className="chat-input-textarea"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          placeholder={images.length > 0 ? 'Add a message or send images...' : 'Ask a question or describe a task...'}
+          disabled={disabled}
+          rows={1}
+        />
+        <button
+          className="chat-send-btn"
+          onClick={handleSend}
+          disabled={!canSend}
+          aria-label="Send message"
+        >
+          ↑
+        </button>
+      </div>
+
+      {/* Drag overlay */}
+      {isDragOver && (
+        <div className="chat-input-drag-overlay">
+          <span>Drop images here</span>
+        </div>
+      )}
     </div>
   )
 }

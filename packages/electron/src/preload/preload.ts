@@ -14,6 +14,7 @@ const opencode = {
     model?: { providerID: string; modelID: string }
     agent?: string
     tools?: Record<string, boolean>
+    attachments?: Array<{ media_type: string; data: string }>
   }) => ipcRenderer.invoke('opencode:send-prompt', options),
   listAgents: () => ipcRenderer.invoke('opencode:list-agents'),
   respondPermission: (sessionId: string, permissionId: string, response: 'once' | 'always' | 'reject') =>

@@ -8,8 +8,8 @@ describe('agents-init', () => {
   })
 
   describe('AGENT_DEFINITIONS', () => {
-    test('contains 7 agent definitions', () => {
-      expect(AGENT_DEFINITIONS).toHaveLength(7)
+    test('contains 8 agent definitions', () => {
+      expect(AGENT_DEFINITIONS).toHaveLength(8)
     })
 
     test('each definition has all required fields', () => {
@@ -37,6 +37,7 @@ describe('agents-init', () => {
       expect(names).toContain('debugger')
       expect(names).toContain('reviewer')
       expect(names).toContain('plugin-recommender')
+      expect(names).toContain('vision')
     })
 
     test('each agent has a unique name', () => {
@@ -46,7 +47,7 @@ describe('agents-init', () => {
     })
 
     test('categories are valid', () => {
-      const validCategories = ['planning', 'coding', 'building', 'debugging', 'reviewing', 'recommending']
+      const validCategories = ['planning', 'coding', 'building', 'debugging', 'reviewing', 'recommending', 'vision']
       for (const def of AGENT_DEFINITIONS) {
         expect(validCategories).toContain(def.category)
       }
@@ -82,6 +83,11 @@ describe('agents-init', () => {
       expect(rec.category).toBe('recommending')
     })
 
+    test('vision has vision category', () => {
+      const vis = AGENT_DEFINITIONS.find((d) => d.name === 'vision')!
+      expect(vis.category).toBe('vision')
+    })
+
     test('each agent has at least read_file tool', () => {
       for (const def of AGENT_DEFINITIONS) {
         expect(def.tools.read_file).toBe(true)
@@ -114,10 +120,10 @@ describe('agents-init', () => {
   })
 
   describe('initializeAgents', () => {
-    test('registers all 7 agents to the registry', () => {
+    test('registers all 8 agents to the registry', () => {
       initializeAgents()
       const agents = listRegisteredAgents()
-      expect(agents).toHaveLength(7)
+      expect(agents).toHaveLength(8)
     })
 
     test('all agents are retrievable by name after initialization', () => {
@@ -130,6 +136,7 @@ describe('agents-init', () => {
       expect(getAgent('debugger')).toBeDefined()
       expect(getAgent('reviewer')).toBeDefined()
       expect(getAgent('plugin-recommender')).toBeDefined()
+      expect(getAgent('vision')).toBeDefined()
     })
 
     test('registered agents match AGENT_DEFINITIONS', () => {
@@ -146,7 +153,7 @@ describe('agents-init', () => {
       initializeAgents()
 
       const agents = listRegisteredAgents()
-      expect(agents).toHaveLength(7)
+      expect(agents).toHaveLength(8)
     })
   })
 })

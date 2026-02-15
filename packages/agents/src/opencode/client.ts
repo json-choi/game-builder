@@ -8,12 +8,18 @@ export interface SessionInfo {
   title: string;
 }
 
+export interface ImageAttachment {
+  media_type: 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp';
+  data: string; // base64-encoded image data
+}
+
 export interface PromptOptions {
   sessionId: string;
   text: string;
   model?: { providerID: string; modelID: string };
   agent?: string;
   tools?: Record<string, boolean>;
+  attachments?: ImageAttachment[];
 }
 
 export interface PromptResponse {
@@ -94,13 +100,39 @@ export async function deleteSession(sessionId: string): Promise<void> {
   });
 }
 
+function buildPromptParts(
+  text: string,
+  attachments?: ImageAttachment[]
+): Array<Record<string, unknown>> {
+  const parts: Array<Record<string, unknown>> = [];
+
+  if (attachments && attachments.length > 0) {
+    for (const img of attachments) {
+      parts.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: img.media_type,
+          data: img.data,
+        },
+      });
+    }
+  }
+
+  parts.push({ type: "text" as const, text });
+
+  return parts;
+}
+
 export async function sendPrompt(options: PromptOptions): Promise<PromptResponse> {
   const client = getClient();
+
+  const parts = buildPromptParts(options.text, options.attachments);
 
   const params: Parameters<typeof client.session.prompt>[0] = {
     sessionID: options.sessionId,
     directory: currentDirectory,
-    parts: [{ type: "text" as const, text: options.text }],
+    parts: parts as Array<{ type: "text"; text: string }>,
   };
 
   if (options.model) {
@@ -115,12 +147,12 @@ export async function sendPrompt(options: PromptOptions): Promise<PromptResponse
 
   const result = await client.session.prompt(params);
 
-  const parts = (result.data?.parts as Array<{ type: string; [key: string]: unknown }>) ?? [];
-  const textPart = parts.find((p) => p.type === "text");
+  const resultParts = (result.data?.parts as Array<{ type: string; [key: string]: unknown }>) ?? [];
+  const textPart = resultParts.find((p) => p.type === "text");
 
   return {
     text: (textPart?.text as string) ?? null,
-    parts,
+    parts: resultParts,
     raw: result.data,
   };
 }
@@ -128,10 +160,12 @@ export async function sendPrompt(options: PromptOptions): Promise<PromptResponse
 export async function sendPromptAsync(options: PromptOptions): Promise<void> {
   const client = getClient();
 
+  const parts = buildPromptParts(options.text, options.attachments);
+
   const params: Parameters<typeof client.session.promptAsync>[0] = {
     sessionID: options.sessionId,
     directory: currentDirectory,
-    parts: [{ type: "text" as const, text: options.text }],
+    parts: parts as Array<{ type: "text"; text: string }>,
   };
 
   if (options.model) {

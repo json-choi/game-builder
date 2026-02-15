@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 
+export interface ChatAttachment {
+  media_type: string
+  data: string // base64-encoded
+  name?: string
+}
+
 export interface ChatMessage {
   id?: string
   projectId?: string
@@ -7,6 +13,7 @@ export interface ChatMessage {
   content: string
   timestamp?: number
   metadata?: string
+  attachments?: ChatAttachment[]
 }
 
 function projectIdFromPath(projectPath: string): string {
@@ -361,7 +368,7 @@ export function useChat(projectPath: string) {
   }, [projectPath, projectId, updateAssistantMessage])
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, attachments?: ChatAttachment[]) => {
       if (!sessionId) return
 
       const now = Date.now()
@@ -371,6 +378,7 @@ export function useChat(projectPath: string) {
         timestamp: now,
         id: `user-${now}`,
         projectId,
+        attachments: attachments && attachments.length > 0 ? attachments : undefined,
       }
 
       setMessages((prev) => [...prev, userMsg])
@@ -386,10 +394,20 @@ export function useChat(projectPath: string) {
         .catch((e: unknown) => console.error('[useChat] Failed to persist user message:', e))
 
       try {
-        await window.api.opencode.sendPrompt({
-          sessionId,
-          text,
-        })
+        const promptOptions: {
+          sessionId: string
+          text: string
+          attachments?: Array<{ media_type: string; data: string }>
+        } = { sessionId, text }
+
+        if (attachments && attachments.length > 0) {
+          promptOptions.attachments = attachments.map((a) => ({
+            media_type: a.media_type,
+            data: a.data,
+          }))
+        }
+
+        await window.api.opencode.sendPrompt(promptOptions)
       } catch (err) {
         console.error('[useChat] Failed to send message:', err)
         setError(err instanceof Error ? err.message : String(err))

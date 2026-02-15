@@ -7,6 +7,7 @@ import { SCENE_BUILDER_SYSTEM_PROMPT } from './scene-builder/system-prompt'
 import { DEBUGGER_SYSTEM_PROMPT } from './debugger/system-prompt'
 import { REVIEWER_SYSTEM_PROMPT } from './reviewer/system-prompt'
 import { PLUGIN_RECOMMENDER_SYSTEM_PROMPT } from './plugin-recommender/system-prompt'
+import { VISION_AGENT_SYSTEM_PROMPT } from './vision/system-prompt'
 
 const agents: AgentDefinition[] = [
   {
@@ -88,6 +89,16 @@ const agents: AgentDefinition[] = [
     category: 'recommending',
     defaultModel: { providerID: 'openai', modelID: 'gpt-5.2' },
     systemPrompt: PLUGIN_RECOMMENDER_SYSTEM_PROMPT,
+    tools: { read_file: true, list_files: true },
+    maxRetries: 2,
+  },
+  {
+    name: 'vision',
+    displayName: 'Vision',
+    description: 'Analyzes game screenshots, UI mockups, and visual assets to provide actionable feedback',
+    category: 'vision',
+    defaultModel: { providerID: 'anthropic', modelID: 'claude-sonnet-4-5' },
+    systemPrompt: VISION_AGENT_SYSTEM_PROMPT,
     tools: { read_file: true, list_files: true },
     maxRetries: 2,
   },

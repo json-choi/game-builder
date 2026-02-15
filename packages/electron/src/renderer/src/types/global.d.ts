@@ -31,6 +31,7 @@ interface OpenCodeAPI {
     model?: { providerID: string; modelID: string }
     agent?: string
     tools?: Record<string, boolean>
+    attachments?: Array<{ media_type: string; data: string }>
   }) => Promise<{ sent: boolean }>
   listAgents: () => Promise<unknown>
   respondPermission: (sessionId: string, permissionId: string, response: 'once' | 'always' | 'reject') => Promise<void>

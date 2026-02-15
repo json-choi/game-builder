@@ -35,6 +35,7 @@ export {
   subscribeEvents,
   type OpencodeClient,
   type SessionInfo,
+  type ImageAttachment,
   type PromptOptions,
   type PromptResponse,
   type SSEEvent,
@@ -89,3 +90,14 @@ export {
 } from "../framework/index";
 
 export { initializeAgents } from "../agents-init";
+
+export {
+  VisionAgent,
+  type ImageAttachment as VisionImageAttachment,
+  type VisionCategory,
+  type VisionSeverity,
+  type VisionQuality,
+  type VisionFinding,
+  type VisionResult,
+  VISION_AGENT_SYSTEM_PROMPT,
+} from "../vision/index";

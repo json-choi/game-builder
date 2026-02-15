@@ -87,6 +87,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ projectPath }) => {
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
                 isStreaming={isLoading && msg.role === 'assistant' && index === messages.length - 1}
+                attachments={msg.attachments}
               />
             </React.Fragment>
           )
