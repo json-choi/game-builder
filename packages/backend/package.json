@@ -11,6 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {

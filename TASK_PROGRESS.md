@@ -15,17 +15,18 @@
 - [x] Task 20: Progress UI & Generation Status — useProgress/global.d.ts 버그 수정, 344 tests pass (932c2a3)
 - [x] Task 21: Chat History Persistence — useChat persistence 연결, 타입 정렬 (c5006b2)
 - [x] Task 22: Project Management — 테스트 46개 추가, 전체 통과 (0c80495)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer, orchestrator-agent, agents-init, progress-reporter, project-manager, useProjects
+- [x] Task 23: Settings & API Key Management — providers 테스트 23개 추가 (13936bf)
+- [x] Task 24: Elysia + Bun Backend Setup — app factory 분리, 테스트 23개 추가 (env 10, app 13), 전체 통과
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer, orchestrator-agent, agents-init, progress-reporter, project-manager, useProjects, backend (app, env)
 
 ## Skipped
 - [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
 
 ## Current
-- [ ] Task 23: Settings & API Key Management
+- [ ] Task 25: Better Auth Integration
 
 ## Queue (순서대로)
-- [ ] Task 24: Elysia + Bun Backend Setup
-- [ ] Task 25: Better Auth Integration
+- [ ] Task 26: PostgreSQL + Drizzle Schema
 - [ ] Task 26: PostgreSQL + Drizzle Schema
 - [ ] Task 27: Deep Link Auth Flow
 - [ ] Task 28: Web Landing Page
@@ -47,7 +48,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T09:16:00+09:00
+2026-02-15T09:30:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
