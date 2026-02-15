@@ -168,23 +168,33 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
 
   return (
     <div
-      className={`chat-input-container${isDragOver ? ' chat-input-container--dragover' : ''}`}
+      className={`chat-input-card${isDragOver ? ' chat-input-card--dragover' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Image Previews */}
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPTED_IMAGE_TYPES.join(',')}
+        multiple
+        onChange={handleFileInputChange}
+        style={{ display: 'none' }}
+      />
+
+      {/* Image Previews — horizontal scroll strip above textarea */}
       {images.length > 0 && (
-        <div className="chat-input-previews">
+        <div className="chat-input-card__previews">
           {images.map((img) => (
-            <div key={img.id} className="chat-input-preview">
+            <div key={img.id} className="chat-input-card__preview">
               <img
                 src={img.dataUrl}
                 alt={img.file.name}
-                className="chat-input-preview__image"
+                className="chat-input-card__preview-img"
               />
               <button
-                className="chat-input-preview__remove"
+                className="chat-input-card__preview-remove"
                 onClick={() => removeImage(img.id)}
                 type="button"
                 aria-label={`Remove ${img.file.name}`}
@@ -196,54 +206,56 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
         </div>
       )}
 
-      <div className="chat-input-row">
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPTED_IMAGE_TYPES.join(',')}
-          multiple
-          className="chat-input-file-input"
-          onChange={handleFileInputChange}
-          style={{ display: 'none' }}
-        />
+      {/* Textarea */}
+      <textarea
+        ref={textareaRef}
+        className="chat-input-card__textarea"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        placeholder={images.length > 0 ? 'Add a message or send images...' : 'Ask a question or describe a task...'}
+        disabled={disabled}
+        rows={1}
+      />
 
-        {/* Attach button */}
-        <button
-          className="chat-input-attach-btn"
-          onClick={handleFileSelect}
-          disabled={disabled}
-          type="button"
-          aria-label="Attach image"
-          title="Attach image (png, jpg, gif, webp)"
-        >
-          📎
-        </button>
-
-        <textarea
-          ref={textareaRef}
-          className="chat-input-textarea"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
-          placeholder={images.length > 0 ? 'Add a message or send images...' : 'Ask a question or describe a task...'}
-          disabled={disabled}
-          rows={1}
-        />
-        <button
-          className="chat-send-btn"
-          onClick={handleSend}
-          disabled={!canSend}
-          aria-label="Send message"
-        >
-          ↑
-        </button>
+      {/* Toolbar */}
+      <div className="chat-input-card__toolbar">
+        <div className="chat-input-card__toolbar-left">
+          {/* Reserved for future agent/model selector */}
+        </div>
+        <div className="chat-input-card__toolbar-right">
+          <button
+            className="chat-input-card__icon-btn"
+            onClick={handleFileSelect}
+            disabled={disabled}
+            type="button"
+            aria-label="Attach image"
+            title="Attach image (png, jpg, gif, webp)"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </button>
+          <button
+            className={`chat-input-card__icon-btn chat-input-card__icon-btn--send${canSend ? ' chat-input-card__icon-btn--active' : ''}`}
+            onClick={handleSend}
+            disabled={!canSend}
+            aria-label="Send message"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5" />
+              <polyline points="5 12 12 5 19 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Drag overlay */}
       {isDragOver && (
-        <div className="chat-input-drag-overlay">
+        <div className="chat-input-card__drag-overlay">
           <span>Drop images here</span>
         </div>
       )}
