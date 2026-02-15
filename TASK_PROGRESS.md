@@ -68,12 +68,14 @@
 ## Completed (continued 10)
 - [x] Task 42: One-Click Publish — itch.io — itch-publisher.ts 생성, butler CLI 연동, 테스트 180개 추가, 1867 tests pass
 
+## Completed (continued 11)
+- [x] Task 43: One-Click Publish — Mobile Stores — mobile-publisher.ts 생성, Google Play/App Store 연동, 테스트 200개 추가, 1013 godot-manager tests pass
+
 ## Queue (순서대로)
-- [ ] Task 43: One-Click Publish — Mobile Stores
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T12:30:00+09:00
+2026-02-15T12:23:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
