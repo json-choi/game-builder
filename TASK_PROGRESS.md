@@ -39,9 +39,9 @@
 - [x] Task 31: Godot Auto-Download System — 코드 검증 완료, 테스트 57개 추가 (122→179), 전체 통과
 
 ## Current
+- [ ] Task 32: Tab System (Left Panel)
 
 ## Queue (순서대로)
-- [ ] Task 32: Tab System (Left Panel)
 - [ ] Task 33: Cost Tracking & Usage UI
 - [ ] Task 34: Godot Build/Export Integration
 - [ ] Task 35: Godot MCP Integration
