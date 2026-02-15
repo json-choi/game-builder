@@ -53,6 +53,24 @@ describe('version', () => {
       expect(parseGodotVersion('abc.def')).toBeNull()
     })
 
+    test('returns null for single number', () => {
+      expect(parseGodotVersion('4')).toBeNull()
+    })
+
+    test('parses dev label', () => {
+      const result = parseGodotVersion('4.5.dev3')
+      expect(result).not.toBeNull()
+      expect(result!.major).toBe(4)
+      expect(result!.minor).toBe(5)
+    })
+
+    test('parses rc label', () => {
+      const result = parseGodotVersion('4.4.rc1')
+      expect(result).not.toBeNull()
+      expect(result!.major).toBe(4)
+      expect(result!.minor).toBe(4)
+    })
+
     test('trims whitespace', () => {
       const result = parseGodotVersion('  4.4  ')
       expect(result).not.toBeNull()

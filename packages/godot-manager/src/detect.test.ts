@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { detectGodot, getArchitecture, clearQuarantine } from './detect'
+import { detectGodot, getArchitecture, clearQuarantine, type DetectionResult } from './detect'
 
 describe('detect', () => {
   describe('detectGodot', () => {
@@ -21,6 +21,35 @@ describe('detect', () => {
         expect(result.source).toBe('none')
       }
     })
+
+    test('result has all DetectionResult interface properties', () => {
+      const result = detectGodot()
+      expect(result).toHaveProperty('found')
+      expect(result).toHaveProperty('path')
+      expect(result).toHaveProperty('version')
+      expect(result).toHaveProperty('compatible')
+      expect(result).toHaveProperty('source')
+    })
+
+    test('source is one of valid enum values', () => {
+      const result = detectGodot()
+      const validSources: DetectionResult['source'][] = ['path', 'common-location', 'user-config', 'none']
+      expect(validSources).toContain(result.source)
+    })
+
+    test('compatible is false when not found', () => {
+      const result = detectGodot()
+      if (!result.found) {
+        expect(result.compatible).toBe(false)
+      }
+    })
+
+    test('version is null when not found', () => {
+      const result = detectGodot()
+      if (!result.found) {
+        expect(result.version).toBeNull()
+      }
+    })
   })
 
   describe('getArchitecture', () => {
@@ -39,6 +68,23 @@ describe('detect', () => {
         expect(arch.archLabel).toBe('x86_64')
       }
     })
+
+    test('archLabel is non-empty string', () => {
+      const arch = getArchitecture()
+      expect(arch.archLabel.length).toBeGreaterThan(0)
+    })
+
+    test('returns all three fields', () => {
+      const arch = getArchitecture()
+      expect(arch).toHaveProperty('platform')
+      expect(arch).toHaveProperty('arch')
+      expect(arch).toHaveProperty('archLabel')
+    })
+
+    test('platform matches process.platform exactly', () => {
+      const arch = getArchitecture()
+      expect(arch.platform).toStrictEqual(process.platform)
+    })
   })
 
   describe('clearQuarantine', () => {
@@ -46,6 +92,21 @@ describe('detect', () => {
       if (process.platform !== 'darwin') {
         expect(clearQuarantine('/some/app.app')).toBe(true)
       }
+    })
+
+    test('returns boolean regardless of platform', () => {
+      const result = clearQuarantine('/tmp/test.app')
+      expect(typeof result).toBe('boolean')
+    })
+
+    test('handles empty path without throwing', () => {
+      const result = clearQuarantine('')
+      expect(typeof result).toBe('boolean')
+    })
+
+    test('handles non-existent path without throwing', () => {
+      const result = clearQuarantine('/nonexistent/path/to/Godot.app')
+      expect(typeof result).toBe('boolean')
     })
   })
 })

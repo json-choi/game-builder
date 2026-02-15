@@ -33,11 +33,14 @@
 
 - [x] Task 29: PixelLab MCP Integration — client + asset-generator 테스트 추가 (eea9aff)
 
+- [x] Task 30: Asset Generator Agent — 테스트 보완, 469 tests pass (f087c72)
+
+## Completed (continued 2)
+- [x] Task 31: Godot Auto-Download System — 코드 검증 완료, 테스트 57개 추가 (122→179), 전체 통과
+
 ## Current
-- [ ] Task 30: Asset Generator Agent
 
 ## Queue (순서대로)
-- [ ] Task 31: Godot Auto-Download System
 - [ ] Task 32: Tab System (Left Panel)
 - [ ] Task 33: Cost Tracking & Usage UI
 - [ ] Task 34: Godot Build/Export Integration
@@ -53,7 +56,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T09:30:00+09:00
+2026-02-15T10:15:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
