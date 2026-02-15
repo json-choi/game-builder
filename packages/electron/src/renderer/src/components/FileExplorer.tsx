@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
+import { FileEditor } from './FileEditor'
 
 interface FileExplorerProps {
   projectPath?: string | null
@@ -75,6 +76,7 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth, selectedPath, 
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({ projectPath }) => {
   const [selectedPath, setSelectedPath] = useState<string | null>(null)
+  const [editingFile, setEditingFile] = useState<string | null>(null)
   const [files, setFiles] = useState<FileNode[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -140,6 +142,36 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ projectPath }) => {
     )
   }
 
+  const handleFileSelect = useCallback((path: string) => {
+    setSelectedPath(path)
+    const findNode = (nodes: FileNode[], target: string): FileNode | null => {
+      for (const n of nodes) {
+        if (n.path === target) return n
+        if (n.children) {
+          const found = findNode(n.children, target)
+          if (found) return found
+        }
+      }
+      return null
+    }
+    const node = findNode(files, path)
+    if (node && !node.isDirectory) {
+      setEditingFile(path)
+    }
+  }, [files])
+
+  if (editingFile && projectPath) {
+    return (
+      <div className="file-explorer">
+        <FileEditor
+          projectPath={projectPath}
+          filePath={editingFile}
+          onClose={() => setEditingFile(null)}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="file-explorer">
       <div className="file-explorer__header">
@@ -152,7 +184,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ projectPath }) => {
             node={node}
             depth={0}
             selectedPath={selectedPath}
-            onSelect={setSelectedPath}
+            onSelect={handleFileSelect}
           />
         ))}
       </div>

@@ -71,11 +71,14 @@
 ## Completed (continued 11)
 - [x] Task 43: One-Click Publish — Mobile Stores — mobile-publisher.ts 생성, Google Play/App Store 연동, 테스트 200개 추가, 1013 godot-manager tests pass
 
+## Completed (continued 12)
+- [x] Phase 2 UX (B1~B7): 프로젝트 전환, 에이전트 선택, 대화 히스토리, 파일 편집기, 토스트, 키보드 단축키, 다크/라이트 테마 — 테스트 104개 추가, 2729 tests pass
+
 ## Queue (순서대로)
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T13:42:00+09:00
+2026-02-16T01:20:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { PreviewPanel } from './PreviewPanel'
 import { SettingsPanel } from './SettingsPanel'
 import { FileExplorer } from './FileExplorer'
@@ -6,9 +6,9 @@ import { ConsolePanel } from './ConsolePanel'
 import { AssetLibrary } from './AssetLibrary'
 import { usePreview } from '../hooks/usePreview'
 
-type LeftPanelTab = 'preview' | 'files' | 'assets' | 'console' | 'settings'
+export type LeftPanelTab = 'preview' | 'files' | 'assets' | 'console' | 'settings'
 
-const TABS: { id: LeftPanelTab; label: string }[] = [
+export const TABS: { id: LeftPanelTab; label: string }[] = [
   { id: 'preview', label: 'Preview' },
   { id: 'files', label: 'Files' },
   { id: 'assets', label: 'Assets' },
@@ -18,10 +18,11 @@ const TABS: { id: LeftPanelTab; label: string }[] = [
 
 interface LeftPanelProps {
   projectPath: string
+  activeTab: LeftPanelTab
+  onTabChange: (tab: LeftPanelTab) => void
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ projectPath }) => {
-  const [activeTab, setActiveTab] = useState<LeftPanelTab>('preview')
+export const LeftPanel: React.FC<LeftPanelProps> = ({ projectPath, activeTab, onTabChange }) => {
   const { output, clearOutput } = usePreview()
 
   return (
@@ -31,7 +32,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ projectPath }) => {
           <div
             key={tab.id}
             className={`tab-bar-item ${activeTab === tab.id ? 'tab-bar-item--active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => onTabChange(tab.id)}
           >
             {tab.label}
           </div>

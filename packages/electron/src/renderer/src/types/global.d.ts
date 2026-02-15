@@ -144,6 +144,8 @@ interface ProjectAPI {
   create: (name: string, template: string) => Promise<ProjectInfo>
   delete: (path: string) => Promise<boolean>
   listFiles: (projectPath: string, maxDepth?: number) => Promise<FileNode[]>
+  readFile: (projectPath: string, relativePath: string) => Promise<string>
+  writeFile: (projectPath: string, relativePath: string, content: string) => Promise<boolean>
 }
 
 interface AgentProgressEvent {

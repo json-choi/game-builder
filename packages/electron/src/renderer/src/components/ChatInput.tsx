@@ -3,6 +3,17 @@ import React, { useState, KeyboardEvent, useRef, useEffect, useCallback, DragEve
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
 const MAX_IMAGE_SIZE = 20 * 1024 * 1024 // 20MB
 
+export const AGENT_OPTIONS = [
+  { id: '', label: 'Auto (Orchestrator)' },
+  { id: 'orchestrator', label: 'Orchestrator' },
+  { id: 'game-coder', label: 'Game Coder' },
+  { id: 'game-designer', label: 'Designer' },
+  { id: 'scene-builder', label: 'Scene Builder' },
+  { id: 'debugger', label: 'Debugger' },
+  { id: 'reviewer', label: 'Reviewer' },
+  { id: 'vision', label: 'Vision' },
+] as const
+
 export interface ImagePreview {
   id: string
   file: File
@@ -12,7 +23,7 @@ export interface ImagePreview {
 }
 
 interface ChatInputProps {
-  onSend: (text: string, attachments?: Array<{ media_type: string; data: string; name?: string }>) => void
+  onSend: (text: string, attachments?: Array<{ media_type: string; data: string; name?: string }>, agent?: string) => void
   disabled?: boolean
 }
 
@@ -47,6 +58,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
   const [text, setText] = useState('')
   const [images, setImages] = useState<ImagePreview[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -81,7 +93,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
         }))
       : undefined
 
-    onSend(text, attachments)
+    onSend(text, attachments, selectedAgent || undefined)
     setText('')
     setImages([])
   }
@@ -222,7 +234,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
       {/* Toolbar */}
       <div className="chat-input-card__toolbar">
         <div className="chat-input-card__toolbar-left">
-          {/* Reserved for future agent/model selector */}
+          <select
+            className="chat-input-card__agent-select"
+            value={selectedAgent}
+            onChange={(e) => setSelectedAgent(e.target.value)}
+            disabled={disabled}
+            aria-label="Select agent"
+          >
+            {AGENT_OPTIONS.map((agent) => (
+              <option key={agent.id} value={agent.id}>{agent.label}</option>
+            ))}
+          </select>
         </div>
         <div className="chat-input-card__toolbar-right">
           <button

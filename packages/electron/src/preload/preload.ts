@@ -95,6 +95,10 @@ const project = {
   delete: (path: string) => ipcRenderer.invoke('project:delete', path),
   listFiles: (projectPath: string, maxDepth?: number) =>
     ipcRenderer.invoke('project:list-files', projectPath, maxDepth),
+  readFile: (projectPath: string, relativePath: string) =>
+    ipcRenderer.invoke('project:read-file', projectPath, relativePath),
+  writeFile: (projectPath: string, relativePath: string, content: string) =>
+    ipcRenderer.invoke('project:write-file', projectPath, relativePath, content),
 }
 
 const agents = {

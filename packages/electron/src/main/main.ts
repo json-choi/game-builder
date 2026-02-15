@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, safeStorage } from 'electron'
 import { join } from 'path'
-import { existsSync, readdirSync, statSync } from 'fs'
+import { existsSync, readdirSync, statSync, readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
   startServer,
@@ -411,6 +411,20 @@ function registerOpenCodeIPC(): void {
 
   ipcMain.handle('project:list-files', (_event, projectPath: string, maxDepth?: number) => {
     return readDirectoryTree(projectPath, projectPath, 0, maxDepth ?? 10)
+  })
+
+  ipcMain.handle('project:read-file', (_event, projectPath: string, relativePath: string) => {
+    const fullPath = join(projectPath, relativePath)
+    if (!fullPath.startsWith(projectPath)) throw new Error('Path traversal detected')
+    if (!existsSync(fullPath)) throw new Error('File not found')
+    return readFileSync(fullPath, 'utf-8')
+  })
+
+  ipcMain.handle('project:write-file', (_event, projectPath: string, relativePath: string, content: string) => {
+    const fullPath = join(projectPath, relativePath)
+    if (!fullPath.startsWith(projectPath)) throw new Error('Path traversal detected')
+    writeFileSync(fullPath, content, 'utf-8')
+    return true
   })
 
   ipcMain.handle('agents:initialize', async () => {

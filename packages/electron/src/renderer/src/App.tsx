@@ -1,22 +1,30 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { SplitPanel } from './components/SplitPanel'
 import { ProjectManager } from './components/ProjectManager'
 import type { ProjectInfo } from './hooks/useProjects'
 
 function App(): React.JSX.Element {
-  const [currentProjectPath, setCurrentProjectPath] = useState<string | null>(null)
+  const [currentProject, setCurrentProject] = useState<ProjectInfo | null>(null)
 
-  if (!currentProjectPath) {
+  const handleBackToProjects = useCallback(() => {
+    setCurrentProject(null)
+  }, [])
+
+  if (!currentProject) {
     return (
       <div className="app">
-        <ProjectManager onProjectSelected={(project: ProjectInfo) => setCurrentProjectPath(project.path)} />
+        <ProjectManager onProjectSelected={(project: ProjectInfo) => setCurrentProject(project)} />
       </div>
     )
   }
 
   return (
     <div className="app">
-      <SplitPanel projectPath={currentProjectPath} />
+      <SplitPanel
+        projectPath={currentProject.path}
+        projectName={currentProject.name}
+        onBackToProjects={handleBackToProjects}
+      />
     </div>
   )
 }

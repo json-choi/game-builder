@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useChat } from '../hooks/useChat'
+import { useConversations } from '../hooks/useConversations'
 import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { UserMenu } from './UserMenu'
@@ -8,13 +9,18 @@ import { ToolIndicator } from './ToolIndicator'
 import { ProgressPanel } from './ProgressPanel'
 import { WelcomeScreen } from './WelcomeScreen'
 import { QuestionPanel } from './QuestionPanel'
+import { ConversationList } from './ConversationList'
 
 interface RightPanelProps {
   projectPath: string
+  projectName: string
+  onBackToProjects: () => void
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ projectPath }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ projectPath, projectName, onBackToProjects }) => {
   const { messages, toolEvents, isLoading, sendMessage, error, pendingQuestion, replyQuestion, rejectQuestionRequest } = useChat(projectPath)
+  const { conversations, activeConversationId, createConversation, deleteConversation, switchConversation } = useConversations(projectPath)
+  const [showConversations, setShowConversations] = useState(false)
   const chatMessagesRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -37,10 +43,35 @@ export const RightPanel: React.FC<RightPanelProps> = ({ projectPath }) => {
   return (
     <div className="right-panel">
       <div className="tab-bar">
-        <span className="chat-header__title">Game Builder</span>
+        <button className="chat-header__back-btn" onClick={onBackToProjects} title="Back to projects" aria-label="Back to projects">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <span className="chat-header__title">{projectName}</span>
         <span className={`chat-header__status ${isLoading ? 'chat-header__status--loading' : error ? 'chat-header__status--error' : 'chat-header__status--idle'}`} />
+        <button
+          className={`chat-header__history-btn ${showConversations ? 'chat-header__history-btn--active' : ''}`}
+          onClick={() => setShowConversations((v) => !v)}
+          title="Conversation history"
+          aria-label="Conversation history"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
         <UserMenu />
       </div>
+      {showConversations && (
+        <ConversationList
+          conversations={conversations}
+          activeId={activeConversationId}
+          onSelect={(id) => { switchConversation(id); setShowConversations(false) }}
+          onCreate={() => { createConversation(); setShowConversations(false) }}
+          onDelete={deleteConversation}
+          onClose={() => setShowConversations(false)}
+        />
+      )}
       
       <div className="chat-messages" ref={chatMessagesRef}>
         {messages.length === 0 && !isLoading && (
@@ -136,7 +167,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ projectPath }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <ChatInput onSend={sendMessage} disabled={isLoading} />
+      <ChatInput onSend={(text, attachments, agent) => sendMessage(text, attachments, agent)} disabled={isLoading} />
     </div>
   )
 }

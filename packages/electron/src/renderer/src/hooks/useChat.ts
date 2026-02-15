@@ -368,7 +368,7 @@ export function useChat(projectPath: string) {
   }, [projectPath, projectId, updateAssistantMessage])
 
   const sendMessage = useCallback(
-    async (text: string, attachments?: ChatAttachment[]) => {
+    async (text: string, attachments?: ChatAttachment[], agent?: string) => {
       if (!sessionId) return
 
       const now = Date.now()
@@ -398,6 +398,7 @@ export function useChat(projectPath: string) {
           sessionId: string
           text: string
           attachments?: Array<{ media_type: string; data: string }>
+          agent?: string
         } = { sessionId, text }
 
         if (attachments && attachments.length > 0) {
@@ -405,6 +406,10 @@ export function useChat(projectPath: string) {
             media_type: a.media_type,
             data: a.data,
           }))
+        }
+
+        if (agent) {
+          promptOptions.agent = agent
         }
 
         await window.api.opencode.sendPrompt(promptOptions)

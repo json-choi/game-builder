@@ -1,6 +1,7 @@
 /// <reference path="../types/global.d.ts" />
 import React, { useEffect, useState } from 'react'
 import { useCostTracking } from '../hooks/useCostTracking'
+import { useTheme, type Theme } from '../contexts/ThemeContext'
 
 interface AgentConfig {
   name: string
@@ -78,8 +79,15 @@ export function formatCostValue(usd: number): string {
   return `$${usd.toFixed(2)}`
 }
 
+const THEME_OPTIONS: { value: Theme; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'light', label: 'Light' },
+]
+
 export const SettingsPanel: React.FC = () => {
   const { stats } = useCostTracking()
+  const { theme, setTheme } = useTheme()
   const [providers, setProviders] = useState<ProviderPreset[]>([])
   const [authStatus, setAuthStatus] = useState<Record<string, boolean>>({})
   const [activeProvider, setActiveProvider] = useState<{ providerId: string | null; modelId: string | null }>({
@@ -353,6 +361,21 @@ export const SettingsPanel: React.FC = () => {
           <span className="settings-usage-label">Estimated cost</span>
           <span className="settings-usage-value">{formatCostValue(stats.totalCost)}</span>
         </div>
+      </div>
+
+      <div className="settings-divider" />
+
+      <div className="settings-section-title">Appearance</div>
+      <div className="settings-theme-toggle">
+        {THEME_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            className={`settings-theme-btn ${theme === opt.value ? 'settings-theme-btn--active' : ''}`}
+            onClick={() => setTheme(opt.value)}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
     </div>
   )
