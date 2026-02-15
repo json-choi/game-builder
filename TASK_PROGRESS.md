@@ -50,8 +50,12 @@
 ## Completed (continued 4)
 - [x] Task 36: Plugin Manager — plugin-manager.ts 생성, 테스트 56개 추가, 270 godot-manager tests pass
 
+## Completed (continued 5)
+- [x] Task 37: AI Plugin Recommender — plugin-recommender agent 생성, 테스트 50+개 추가, 612 agents tests pass
+
+## Current
+
 ## Queue (순서대로)
-- [ ] Task 37: AI Plugin Recommender
 - [ ] Task 38: Git-like Work Log
 - [ ] Task 39: Auto-Commit System
 - [ ] Task 40: Multi-Platform Build Pipeline
@@ -61,7 +65,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T10:45:00+09:00
+2026-02-15T10:55:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요

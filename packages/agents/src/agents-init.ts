@@ -6,6 +6,7 @@ import { GAME_CODER_SYSTEM_PROMPT } from './game-coder/system-prompt'
 import { SCENE_BUILDER_SYSTEM_PROMPT } from './scene-builder/system-prompt'
 import { DEBUGGER_SYSTEM_PROMPT } from './debugger/system-prompt'
 import { REVIEWER_SYSTEM_PROMPT } from './reviewer/system-prompt'
+import { PLUGIN_RECOMMENDER_SYSTEM_PROMPT } from './plugin-recommender/system-prompt'
 
 const agents: AgentDefinition[] = [
   {
@@ -79,6 +80,16 @@ const agents: AgentDefinition[] = [
     systemPrompt: REVIEWER_SYSTEM_PROMPT,
     tools: { read_file: true, list_files: true, validate_project: true },
     maxRetries: 1,
+  },
+  {
+    name: 'plugin-recommender',
+    displayName: 'Plugin Recommender',
+    description: 'Recommends Godot plugins based on game requirements and design documents',
+    category: 'recommending',
+    defaultModel: { providerID: 'openai', modelID: 'gpt-5.2' },
+    systemPrompt: PLUGIN_RECOMMENDER_SYSTEM_PROMPT,
+    tools: { read_file: true, list_files: true },
+    maxRetries: 2,
   },
 ]
 

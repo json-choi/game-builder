@@ -2,7 +2,7 @@ export interface AgentDefinition {
   name: string
   displayName: string
   description: string
-  category: 'planning' | 'coding' | 'building' | 'debugging' | 'reviewing'
+  category: 'planning' | 'coding' | 'building' | 'debugging' | 'reviewing' | 'recommending'
   defaultModel: { providerID: string; modelID: string }
   systemPrompt: string
   tools: Record<string, boolean>

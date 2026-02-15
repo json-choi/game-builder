@@ -8,8 +8,8 @@ describe('agents-init', () => {
   })
 
   describe('AGENT_DEFINITIONS', () => {
-    test('contains 6 agent definitions', () => {
-      expect(AGENT_DEFINITIONS).toHaveLength(6)
+    test('contains 7 agent definitions', () => {
+      expect(AGENT_DEFINITIONS).toHaveLength(7)
     })
 
     test('each definition has all required fields', () => {
@@ -36,6 +36,7 @@ describe('agents-init', () => {
       expect(names).toContain('scene-builder')
       expect(names).toContain('debugger')
       expect(names).toContain('reviewer')
+      expect(names).toContain('plugin-recommender')
     })
 
     test('each agent has a unique name', () => {
@@ -45,7 +46,7 @@ describe('agents-init', () => {
     })
 
     test('categories are valid', () => {
-      const validCategories = ['planning', 'coding', 'building', 'debugging', 'reviewing']
+      const validCategories = ['planning', 'coding', 'building', 'debugging', 'reviewing', 'recommending']
       for (const def of AGENT_DEFINITIONS) {
         expect(validCategories).toContain(def.category)
       }
@@ -74,6 +75,11 @@ describe('agents-init', () => {
     test('reviewer has reviewing category', () => {
       const rev = AGENT_DEFINITIONS.find((d) => d.name === 'reviewer')!
       expect(rev.category).toBe('reviewing')
+    })
+
+    test('plugin-recommender has recommending category', () => {
+      const rec = AGENT_DEFINITIONS.find((d) => d.name === 'plugin-recommender')!
+      expect(rec.category).toBe('recommending')
     })
 
     test('each agent has at least read_file tool', () => {
@@ -108,10 +114,10 @@ describe('agents-init', () => {
   })
 
   describe('initializeAgents', () => {
-    test('registers all 6 agents to the registry', () => {
+    test('registers all 7 agents to the registry', () => {
       initializeAgents()
       const agents = listRegisteredAgents()
-      expect(agents).toHaveLength(6)
+      expect(agents).toHaveLength(7)
     })
 
     test('all agents are retrievable by name after initialization', () => {
@@ -123,6 +129,7 @@ describe('agents-init', () => {
       expect(getAgent('scene-builder')).toBeDefined()
       expect(getAgent('debugger')).toBeDefined()
       expect(getAgent('reviewer')).toBeDefined()
+      expect(getAgent('plugin-recommender')).toBeDefined()
     })
 
     test('registered agents match AGENT_DEFINITIONS', () => {
@@ -139,7 +146,7 @@ describe('agents-init', () => {
       initializeAgents()
 
       const agents = listRegisteredAgents()
-      expect(agents).toHaveLength(6)
+      expect(agents).toHaveLength(7)
     })
   })
 })
