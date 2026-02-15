@@ -1,5 +1,6 @@
 /// <reference path="../types/global.d.ts" />
 import React, { useEffect, useState } from 'react'
+import { useCostTracking } from '../hooks/useCostTracking'
 
 interface AgentConfig {
   name: string
@@ -64,7 +65,21 @@ const KeyInput: React.FC<KeyInputProps> = ({
   )
 }
 
+export function formatTokenCount(count: number): string {
+  if (count === 0) return '0'
+  if (count >= 1_000_000) return `~${(count / 1_000_000).toFixed(1)}M`
+  if (count >= 1_000) return `~${(count / 1_000).toFixed(1)}K`
+  return `~${count}`
+}
+
+export function formatCostValue(usd: number): string {
+  if (usd === 0) return '$0.00'
+  if (usd < 0.01) return `$${usd.toFixed(4)}`
+  return `$${usd.toFixed(2)}`
+}
+
 export const SettingsPanel: React.FC = () => {
+  const { stats } = useCostTracking()
   const [providers, setProviders] = useState<ProviderPreset[]>([])
   const [authStatus, setAuthStatus] = useState<Record<string, boolean>>({})
   const [activeProvider, setActiveProvider] = useState<{ providerId: string | null; modelId: string | null }>({
@@ -328,15 +343,15 @@ export const SettingsPanel: React.FC = () => {
       <div className="settings-usage-stats">
         <div className="settings-usage-row">
           <span className="settings-usage-label">Total messages</span>
-          <span className="settings-usage-value">0</span>
+          <span className="settings-usage-value">{stats.totalMessages}</span>
         </div>
         <div className="settings-usage-row">
           <span className="settings-usage-label">Total tokens</span>
-          <span className="settings-usage-value">~0</span>
+          <span className="settings-usage-value">{formatTokenCount(stats.totalTokens)}</span>
         </div>
         <div className="settings-usage-row">
           <span className="settings-usage-label">Estimated cost</span>
-          <span className="settings-usage-value">$0.00</span>
+          <span className="settings-usage-value">{formatCostValue(stats.totalCost)}</span>
         </div>
       </div>
     </div>

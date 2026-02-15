@@ -64,12 +64,108 @@ export interface SidescrollerTilesetRequest {
   shading?: 'flat shading' | 'basic shading' | 'medium shading' | 'detailed shading' | 'highly detailed shading'
 }
 
+const PIXELLAB_API_BASE = 'https://api.pixellab.ai/v1'
+
+let _config: PixelLabConfig = {}
+
+export function configure(config: PixelLabConfig): void {
+  _config = { ...config }
+}
+
+export function getConfig(): PixelLabConfig {
+  return { ..._config }
+}
+
+export class PixelLabError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode?: number,
+    public readonly endpoint?: string,
+  ) {
+    super(message)
+    this.name = 'PixelLabError'
+  }
+}
+
+function getApiKey(): string | null {
+  return _config.apiKey || process.env.PIXELLAB_API_KEY || null
+}
+
 function logMcp(action: string, params: Record<string, unknown>): void {
-  console.log(`[PixelLab MCP] would call ${action}`, params)
+  console.log(`[PixelLab MCP] ${action}`, params)
+}
+
+async function apiRequest<T>(
+  endpoint: string,
+  body: Record<string, unknown>,
+): Promise<T> {
+  const apiKey = getApiKey()
+  if (!apiKey) {
+    throw new PixelLabError(
+      'PixelLab API key not configured. Set it via configure({ apiKey }) or the PIXELLAB_API_KEY environment variable.',
+      undefined,
+      endpoint,
+    )
+  }
+
+  const url = `${PIXELLAB_API_BASE}${endpoint}`
+  logMcp(endpoint, body)
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error')
+    throw new PixelLabError(
+      `PixelLab API error (${response.status}): ${errorText}`,
+      response.status,
+      endpoint,
+    )
+  }
+
+  return response.json() as Promise<T>
+}
+
+async function apiGet<T>(endpoint: string): Promise<T> {
+  const apiKey = getApiKey()
+  if (!apiKey) {
+    throw new PixelLabError(
+      'PixelLab API key not configured. Set it via configure({ apiKey }) or the PIXELLAB_API_KEY environment variable.',
+      undefined,
+      endpoint,
+    )
+  }
+
+  const url = `${PIXELLAB_API_BASE}${endpoint}`
+  logMcp(`GET ${endpoint}`, {})
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error')
+    throw new PixelLabError(
+      `PixelLab API error (${response.status}): ${errorText}`,
+      response.status,
+      endpoint,
+    )
+  }
+
+  return response.json() as Promise<T>
 }
 
 export async function createCharacter(request: CharacterRequest): Promise<CharacterCreateResult> {
-  logMcp('create_character', {
+  const body: Record<string, unknown> = {
     description: request.description,
     name: request.name,
     size: request.size ?? 48,
@@ -81,13 +177,13 @@ export async function createCharacter(request: CharacterRequest): Promise<Charac
     outline: request.outline,
     shading: request.shading,
     proportions: request.proportions,
-  })
-  return { characterId: 'placeholder-character-id', jobId: 'placeholder-job-id' }
+  }
+
+  return apiRequest<CharacterCreateResult>('/characters/create', body)
 }
 
 export async function getCharacter(characterId: string): Promise<unknown> {
-  logMcp('get_character', { character_id: characterId })
-  return { characterId, status: 'placeholder', rotations: [], animations: [] }
+  return apiGet(`/characters/${characterId}`)
 }
 
 export async function animateCharacter(
@@ -95,34 +191,35 @@ export async function animateCharacter(
   templateAnimationId: string,
   options?: { actionDescription?: string; animationName?: string },
 ): Promise<AnimateResult> {
-  logMcp('animate_character', {
+  const body: Record<string, unknown> = {
     character_id: characterId,
     template_animation_id: templateAnimationId,
     action_description: options?.actionDescription,
     animation_name: options?.animationName,
-  })
-  return { jobId: 'placeholder-animation-job-id' }
+  }
+
+  return apiRequest<AnimateResult>('/characters/animate', body)
 }
 
 export async function createIsometricTile(request: TileRequest): Promise<TileCreateResult> {
-  logMcp('create_isometric_tile', {
+  const body: Record<string, unknown> = {
     description: request.description,
     size: request.size ?? 32,
     tile_shape: request.shape ?? 'block',
     detail: request.detail,
     outline: request.outline,
     shading: request.shading,
-  })
-  return { tileId: 'placeholder-tile-id' }
+  }
+
+  return apiRequest<TileCreateResult>('/tiles/isometric/create', body)
 }
 
 export async function getIsometricTile(tileId: string): Promise<unknown> {
-  logMcp('get_isometric_tile', { tile_id: tileId })
-  return { tileId, status: 'placeholder' }
+  return apiGet(`/tiles/isometric/${tileId}`)
 }
 
 export async function createTopdownTileset(request: TilesetRequest): Promise<TilesetCreateResult> {
-  logMcp('create_topdown_tileset', {
+  const body: Record<string, unknown> = {
     lower_description: request.lowerDescription,
     upper_description: request.upperDescription,
     transition_description: request.transitionDescription,
@@ -132,19 +229,19 @@ export async function createTopdownTileset(request: TilesetRequest): Promise<Til
     detail: request.detail,
     outline: request.outline,
     shading: request.shading,
-  })
-  return { tilesetId: 'placeholder-tileset-id' }
+  }
+
+  return apiRequest<TilesetCreateResult>('/tilesets/topdown/create', body)
 }
 
 export async function getTopdownTileset(tilesetId: string): Promise<unknown> {
-  logMcp('get_topdown_tileset', { tileset_id: tilesetId })
-  return { tilesetId, status: 'placeholder' }
+  return apiGet(`/tilesets/topdown/${tilesetId}`)
 }
 
 export async function createSidescrollerTileset(
   request: SidescrollerTilesetRequest,
 ): Promise<TilesetCreateResult> {
-  logMcp('create_sidescroller_tileset', {
+  const body: Record<string, unknown> = {
     lower_description: request.lowerDescription,
     transition_description: request.transitionDescription,
     tile_size: request.tileSize ?? { width: 16, height: 16 },
@@ -152,11 +249,11 @@ export async function createSidescrollerTileset(
     detail: request.detail,
     outline: request.outline,
     shading: request.shading,
-  })
-  return { tilesetId: 'placeholder-sidescroller-tileset-id' }
+  }
+
+  return apiRequest<TilesetCreateResult>('/tilesets/sidescroller/create', body)
 }
 
 export async function getSidescrollerTileset(tilesetId: string): Promise<unknown> {
-  logMcp('get_sidescroller_tileset', { tileset_id: tilesetId })
-  return { tilesetId, status: 'placeholder' }
+  return apiGet(`/tilesets/sidescroller/${tilesetId}`)
 }

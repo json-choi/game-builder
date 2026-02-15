@@ -2057,3 +2057,338 @@ html, body, #root {
   color: #cccccc;
   border-color: #666;
 }
+
+/* ─── Console Panel ─────────────────────────────────────────────── */
+
+.console-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.console-panel__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3c3c3c;
+  min-height: 32px;
+  flex-shrink: 0;
+}
+
+.console-panel__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.console-panel__filters {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.console-panel__filter-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: #888;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.console-panel__filter-btn:hover {
+  color: #ccc;
+  background-color: #3c3c3c;
+}
+
+.console-panel__filter-btn--active {
+  color: #fff;
+  background-color: #3c3c3c;
+  border-color: #555;
+}
+
+.console-panel__filter-btn--error {
+  color: #ef4444;
+}
+
+.console-panel__filter-btn--warning {
+  color: #f59e0b;
+}
+
+.console-panel__actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.console-panel__action-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.console-panel__action-btn:hover {
+  color: #fff;
+  background-color: #3c3c3c;
+}
+
+.console-panel__action-btn--active {
+  color: #3b82f6;
+}
+
+.console-panel__action-btn--clear:hover {
+  color: #ef4444;
+}
+
+.console-panel__output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.console-panel__entry {
+  display: flex;
+  gap: 8px;
+  padding: 1px 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.console-panel__entry:hover {
+  background-color: #2a2a2a;
+}
+
+.console-panel__entry--error {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.console-panel__entry--warning {
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.console-panel__entry-time {
+  color: #555;
+  font-size: 11px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.console-panel__entry-level {
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+  user-select: none;
+}
+
+.console-panel__entry-message {
+  flex: 1;
+  min-width: 0;
+}
+
+.console-panel__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #666;
+}
+
+.console-panel__empty-icon {
+  font-size: 32px;
+  opacity: 0.5;
+}
+
+.console-panel__empty-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+}
+
+.console-panel__empty-subtext {
+  font-size: 12px;
+  color: #666;
+}
+
+/* ─── Asset Library ─────────────────────────────────────────────── */
+
+.asset-library {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #252526;
+}
+
+.asset-library__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #3c3c3c;
+  flex-shrink: 0;
+}
+
+.asset-library__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.asset-library__count {
+  font-size: 11px;
+  color: #666;
+  background-color: #3c3c3c;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.asset-library__search {
+  padding: 8px 12px;
+  border-bottom: 1px solid #3c3c3c;
+  flex-shrink: 0;
+}
+
+.asset-library__search-input {
+  width: 100%;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  padding: 5px 8px;
+  color: #cccccc;
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.asset-library__search-input:focus {
+  border-color: #007fd4;
+}
+
+.asset-library__search-input::placeholder {
+  color: #666;
+}
+
+.asset-library__categories {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #3c3c3c;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.asset-library__category-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: #888;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.asset-library__category-btn:hover {
+  color: #ccc;
+  background-color: #3c3c3c;
+}
+
+.asset-library__category-btn--active {
+  color: #fff;
+  background-color: #3c3c3c;
+  border-color: #555;
+}
+
+.asset-library__grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  align-content: start;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.asset-library__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.asset-library__item:hover {
+  background-color: #3c3c3c;
+}
+
+.asset-library__item-preview {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2d2d2d;
+  border-radius: 4px;
+  border: 1px solid #3c3c3c;
+}
+
+.asset-library__item-thumbnail {
+  font-size: 24px;
+}
+
+.asset-library__item-icon {
+  font-size: 24px;
+}
+
+.asset-library__item-name {
+  font-size: 10px;
+  color: #cccccc;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-library__item-ext {
+  font-size: 9px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.asset-library__empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 13px;
+  padding: 20px;
+}

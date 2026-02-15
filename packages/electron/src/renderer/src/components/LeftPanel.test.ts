@@ -18,8 +18,8 @@ function getVisiblePanel(activeTab: LeftPanelTab): string {
   const panels: Record<LeftPanelTab, string> = {
     preview: 'PreviewPanel',
     files: 'FileExplorer',
-    assets: 'AssetsPlaceholder',
-    console: 'ConsolePlaceholder',
+    assets: 'AssetLibrary',
+    console: 'ConsolePanel',
     settings: 'SettingsPanel',
   }
   return panels[activeTab]
@@ -207,12 +207,12 @@ describe('LeftPanel tab system', () => {
       expect(getVisiblePanel('files')).toBe('FileExplorer')
     })
 
-    test('assets tab shows AssetsPlaceholder', () => {
-      expect(getVisiblePanel('assets')).toBe('AssetsPlaceholder')
+    test('assets tab shows AssetLibrary', () => {
+      expect(getVisiblePanel('assets')).toBe('AssetLibrary')
     })
 
-    test('console tab shows ConsolePlaceholder', () => {
-      expect(getVisiblePanel('console')).toBe('ConsolePlaceholder')
+    test('console tab shows ConsolePanel', () => {
+      expect(getVisiblePanel('console')).toBe('ConsolePanel')
     })
 
     test('settings tab shows SettingsPanel', () => {
@@ -273,29 +273,15 @@ describe('LeftPanel tab system', () => {
     })
   })
 
-  describe('placeholder components', () => {
-    test('AssetsPlaceholder has expected content structure', () => {
-      const expected = {
-        icon: '\u{1F3A8}',
-        text: 'Asset Library',
-        subtext: 'Generated assets will appear here',
-      }
-
-      expect(expected.icon).toBe('\u{1F3A8}')
-      expect(expected.text).toBe('Asset Library')
-      expect(expected.subtext).toContain('assets')
+  describe('real component replacements', () => {
+    test('AssetLibrary replaced AssetsPlaceholder', () => {
+      expect(getVisiblePanel('assets')).toBe('AssetLibrary')
+      expect(getVisiblePanel('assets')).not.toBe('AssetsPlaceholder')
     })
 
-    test('ConsolePlaceholder has expected content structure', () => {
-      const expected = {
-        icon: '\u{1F4BB}',
-        text: 'Console Output',
-        subtext: 'Godot logs and output will appear here',
-      }
-
-      expect(expected.icon).toBe('\u{1F4BB}')
-      expect(expected.text).toBe('Console Output')
-      expect(expected.subtext).toContain('Godot')
+    test('ConsolePanel replaced ConsolePlaceholder', () => {
+      expect(getVisiblePanel('console')).toBe('ConsolePanel')
+      expect(getVisiblePanel('console')).not.toBe('ConsolePlaceholder')
     })
   })
 
@@ -321,10 +307,16 @@ describe('LeftPanel tab system', () => {
         expect(['PreviewPanel', 'FileExplorer']).toContain(panel)
       }
 
-      const panelsWithoutPath: LeftPanelTab[] = ['assets', 'console', 'settings']
+      const panelsWithoutPath: LeftPanelTab[] = ['settings']
       for (const tab of panelsWithoutPath) {
         const panel = getVisiblePanel(tab)
-        expect(['AssetsPlaceholder', 'ConsolePlaceholder', 'SettingsPanel']).toContain(panel)
+        expect(['SettingsPanel']).toContain(panel)
+      }
+
+      const panelsWithProjectPath: LeftPanelTab[] = ['assets', 'console']
+      for (const tab of panelsWithProjectPath) {
+        const panel = getVisiblePanel(tab)
+        expect(['AssetLibrary', 'ConsolePanel']).toContain(panel)
       }
     })
   })

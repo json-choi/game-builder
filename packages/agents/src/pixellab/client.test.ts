@@ -9,9 +9,23 @@ import type {
   TilesetRequest,
   TilesetCreateResult,
   SidescrollerTilesetRequest,
+  PixelLabConfig,
 } from './client'
 
 const mockLogMcp = mock((_action: string, _params: Record<string, unknown>) => {})
+
+let mockConfig: PixelLabConfig = {}
+
+class MockPixelLabError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode?: number,
+    public readonly endpoint?: string,
+  ) {
+    super(message)
+    this.name = 'PixelLabError'
+  }
+}
 
 mock.module('./client', () => {
   function logMcp(action: string, params: Record<string, unknown>): void {
@@ -19,6 +33,9 @@ mock.module('./client', () => {
   }
 
   return {
+    PixelLabError: MockPixelLabError,
+    configure: (config: PixelLabConfig) => { mockConfig = { ...config } },
+    getConfig: () => ({ ...mockConfig }),
     createCharacter: async (request: CharacterRequest): Promise<CharacterCreateResult> => {
       logMcp('create_character', {
         description: request.description,
@@ -588,6 +605,51 @@ describe('PixelLab MCP Client', () => {
       for (const result of results) {
         expect(result).toBeInstanceOf(Promise)
       }
+    })
+  })
+
+  describe('PixelLabConfig type contract', () => {
+    test('PixelLabConfig supports optional apiKey', () => {
+      const config: PixelLabConfig = { apiKey: 'test-key-123' }
+      expect(config.apiKey).toBe('test-key-123')
+    })
+
+    test('PixelLabConfig apiKey is optional', () => {
+      const config: PixelLabConfig = {}
+      expect(config.apiKey).toBeUndefined()
+    })
+  })
+
+  describe('PixelLabError contract', () => {
+    test('PixelLabError is an Error subclass', () => {
+      const err = new MockPixelLabError('test error')
+      expect(err).toBeInstanceOf(Error)
+      expect(err.name).toBe('PixelLabError')
+      expect(err.message).toBe('test error')
+    })
+
+    test('PixelLabError stores statusCode', () => {
+      const err = new MockPixelLabError('not found', 404, '/test')
+      expect(err.statusCode).toBe(404)
+    })
+
+    test('PixelLabError stores endpoint', () => {
+      const err = new MockPixelLabError('server error', 500, '/characters/create')
+      expect(err.endpoint).toBe('/characters/create')
+    })
+
+    test('PixelLabError has undefined statusCode and endpoint by default', () => {
+      const err = new MockPixelLabError('no key')
+      expect(err.statusCode).toBeUndefined()
+      expect(err.endpoint).toBeUndefined()
+    })
+
+    test('PixelLabError message includes guidance for missing API key', () => {
+      const err = new MockPixelLabError(
+        'PixelLab API key not configured. Set it via configure({ apiKey }) or the PIXELLAB_API_KEY environment variable.'
+      )
+      expect(err.message).toContain('API key not configured')
+      expect(err.message).toContain('PIXELLAB_API_KEY')
     })
   })
 })

@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { PreviewPanel } from './PreviewPanel'
 import { SettingsPanel } from './SettingsPanel'
 import { FileExplorer } from './FileExplorer'
+import { ConsolePanel } from './ConsolePanel'
+import { AssetLibrary } from './AssetLibrary'
+import { usePreview } from '../hooks/usePreview'
 
 type LeftPanelTab = 'preview' | 'files' | 'assets' | 'console' | 'settings'
 
@@ -19,6 +22,7 @@ interface LeftPanelProps {
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ projectPath }) => {
   const [activeTab, setActiveTab] = useState<LeftPanelTab>('preview')
+  const { output, clearOutput } = usePreview()
 
   return (
     <div className="left-panel">
@@ -37,26 +41,10 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ projectPath }) => {
       <div className="left-panel__content">
         {activeTab === 'preview' && <PreviewPanel projectPath={projectPath} />}
         {activeTab === 'files' && <FileExplorer projectPath={projectPath} />}
-        {activeTab === 'assets' && <AssetsPlaceholder />}
-        {activeTab === 'console' && <ConsolePlaceholder />}
+        {activeTab === 'assets' && <AssetLibrary projectPath={projectPath} />}
+        {activeTab === 'console' && <ConsolePanel output={output} onClear={clearOutput} />}
         {activeTab === 'settings' && <SettingsPanel />}
       </div>
     </div>
   )
 }
-
-const AssetsPlaceholder: React.FC = () => (
-  <div className="panel-placeholder">
-    <div className="panel-placeholder__icon">{'\u{1F3A8}'}</div>
-    <div className="panel-placeholder__text">Asset Library</div>
-    <div className="panel-placeholder__subtext">Generated assets will appear here</div>
-  </div>
-)
-
-const ConsolePlaceholder: React.FC = () => (
-  <div className="panel-placeholder">
-    <div className="panel-placeholder__icon">{'\u{1F4BB}'}</div>
-    <div className="panel-placeholder__text">Console Output</div>
-    <div className="panel-placeholder__subtext">Godot logs and output will appear here</div>
-  </div>
-)
