@@ -44,8 +44,10 @@
 
 - [x] Task 34: Godot Build/Export Integration — export.ts 검증 완료, 테스트 35개 추가 (16→51), 978 tests pass
 
+## Completed (continued 3)
+- [x] Task 35: Godot MCP Integration — godot-mcp client 생성, 테스트 84개 추가, 1062 tests pass
+
 ## Current
-- [ ] Task 35: Godot MCP Integration
 
 ## Queue (순서대로)
 - [ ] Task 36: Plugin Manager
@@ -59,7 +61,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T10:30:00+09:00
+2026-02-15T10:45:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요

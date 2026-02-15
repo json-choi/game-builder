@@ -16,6 +16,7 @@
     "./reviewer": "./src/reviewer/index.ts",
     "./pixellab": "./src/pixellab/index.ts",
     "./asset-generator": "./src/asset-generator/index.ts",
+    "./godot-mcp": "./src/godot-mcp/index.ts",
     "./init": "./src/agents-init.ts"
   },
   "scripts": {
