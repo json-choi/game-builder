@@ -47,10 +47,10 @@
 ## Completed (continued 3)
 - [x] Task 35: Godot MCP Integration — godot-mcp client 생성, 테스트 84개 추가, 1062 tests pass
 
-## Current
+## Completed (continued 4)
+- [x] Task 36: Plugin Manager — plugin-manager.ts 생성, 테스트 56개 추가, 270 godot-manager tests pass
 
 ## Queue (순서대로)
-- [ ] Task 36: Plugin Manager
 - [ ] Task 37: AI Plugin Recommender
 - [ ] Task 38: Git-like Work Log
 - [ ] Task 39: Auto-Commit System

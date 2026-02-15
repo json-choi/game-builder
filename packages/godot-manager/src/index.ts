@@ -75,3 +75,20 @@ export {
   checkExportTemplates,
   getExportTemplateUrl,
 } from "./export.js";
+
+export {
+  type PluginConfig,
+  type GodotPlugin,
+  type InstallPluginOptions,
+  type PluginInstallResult,
+  parsePluginCfg,
+  readPluginConfig,
+  getEnabledPlugins,
+  listPlugins,
+  getPlugin,
+  installPlugin,
+  removePlugin,
+  enablePlugin,
+  disablePlugin,
+  validatePluginStructure,
+} from "./plugin-manager.js";
