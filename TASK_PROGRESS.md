@@ -12,16 +12,16 @@
 - [x] Task 17: Reviewer Agent — 테스트 26개 추가, 271 agent tests pass (a5c9de4)
 - [x] Task 18: Agent Coordination & Turn-Taking — orchestrator/agents-init 테스트 +25개, 310 tests pass (ff180c4)
 - [x] Task 19: Error Feedback Loop — mock 격리 수정, 336 tests pass 0 fail (05bec1a)
-- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer, orchestrator-agent, agents-init
+- [x] Task 20: Progress UI & Generation Status — useProgress/global.d.ts 버그 수정, 344 tests pass (932c2a3)
+- [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer, orchestrator-agent, agents-init, progress-reporter
 
 ## Skipped
 - [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
 
 ## Current
-- [ ] Task 20: Progress UI & Generation Status
+- [ ] Task 21: Chat History Persistence
 
 ## Queue (순서대로)
-- [ ] Task 21: Chat History Persistence
 - [ ] Task 22: Project Management
 - [ ] Task 23: Settings & API Key Management
 - [ ] Task 24: Elysia + Bun Backend Setup
@@ -47,7 +47,7 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T08:59:00+09:00
+2026-02-15T09:03:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요

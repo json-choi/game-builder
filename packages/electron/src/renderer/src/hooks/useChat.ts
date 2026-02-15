@@ -2,9 +2,16 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface ChatMessage {
   id?: string
-  role: 'user' | 'assistant'
+  projectId?: string
+  role: 'user' | 'assistant' | 'system'
   content: string
   timestamp?: number
+  metadata?: string
+}
+
+function projectIdFromPath(projectPath: string): string {
+  const segments = projectPath.replace(/[\\/]+$/, '').split(/[\\/]/)
+  return segments[segments.length - 1] || projectPath
 }
 
 export interface ToolEvent {
@@ -83,6 +90,8 @@ export function useChat(projectPath: string) {
 
   const textPartsRef = useRef<Map<string, Map<string, string>>>(new Map())
   const userMessageIdsRef = useRef<Set<string>>(new Set())
+  const persistedIdsRef = useRef<Set<string>>(new Set())
+  const projectId = projectIdFromPath(projectPath)
 
   const updateAssistantMessage = useCallback((messageID: string) => {
     const partsMap = textPartsRef.current.get(messageID)
@@ -127,6 +136,18 @@ export function useChat(projectPath: string) {
           setSessionId(session.id)
         }
 
+        try {
+          const history = await window.api.chat.getMessages(projectId)
+          if (mounted.current && history.length > 0) {
+            for (const msg of history) {
+              if (msg.id) persistedIdsRef.current.add(msg.id)
+            }
+            setMessages(history)
+          }
+        } catch (e) {
+          console.error('[useChat] Failed to load chat history:', e)
+        }
+
         const subResult = await window.api.opencode.subscribeEvents()
         if (subResult.error) {
           console.error('[useChat] Failed to subscribe:', subResult.error)
@@ -158,6 +179,29 @@ export function useChat(projectPath: string) {
 
               if (info.role === 'assistant' && info.finish) {
                 setIsLoading(false)
+
+                const msgKey = `assistant-${info.id}`
+                if (!persistedIdsRef.current.has(msgKey)) {
+                  const partsMap = textPartsRef.current.get(info.id)
+                  if (partsMap) {
+                    const sorted = Array.from(partsMap.entries())
+                    sorted.sort(([a], [b]) => a.localeCompare(b))
+                    const content = sorted.map(([, t]) => t).join('')
+                    if (content) {
+                      persistedIdsRef.current.add(msgKey)
+                      window.api.chat
+                        .saveMessage({
+                          projectId,
+                          role: 'assistant',
+                          content,
+                          timestamp: info.time.created,
+                        })
+                        .catch((e: unknown) =>
+                          console.error('[useChat] Failed to persist assistant message:', e)
+                        )
+                    }
+                  }
+                }
               }
 
               if (info.role === 'assistant') {
@@ -309,28 +353,36 @@ export function useChat(projectPath: string) {
       mounted.current = false
       textPartsRef.current.clear()
       userMessageIdsRef.current.clear()
+      persistedIdsRef.current.clear()
       if (unsubscribe) unsubscribe()
     }
-  }, [projectPath, updateAssistantMessage])
+  }, [projectPath, projectId, updateAssistantMessage])
 
   const sendMessage = useCallback(
     async (text: string) => {
       if (!sessionId) return
 
-      // Optimistically add user message
+      const now = Date.now()
       const userMsg: ChatMessage = {
         role: 'user',
         content: text,
-        timestamp: Date.now(),
-        id: `user-${Date.now()}`,
+        timestamp: now,
+        id: `user-${now}`,
+        projectId,
       }
 
       setMessages((prev) => [...prev, userMsg])
       setIsLoading(true)
       setError(null)
-      // Clear previous tool events on new message
       setToolEvents([])
       textPartsRef.current.clear()
+
+      window.api.chat
+        .saveMessage({ projectId, role: 'user', content: text, timestamp: now })
+        .then((savedId) => {
+          persistedIdsRef.current.add(savedId)
+        })
+        .catch((e: unknown) => console.error('[useChat] Failed to persist user message:', e))
 
       try {
         await window.api.opencode.sendPrompt({
@@ -343,7 +395,7 @@ export function useChat(projectPath: string) {
         setIsLoading(false)
       }
     },
-    [sessionId]
+    [sessionId, projectId]
   )
 
   const replyQuestion = useCallback(
