@@ -65,13 +65,15 @@
 ## Completed (continued 9)
 - [x] Task 41: Build Progress UI — useBuildProgress hook + BuildProgressPanel 생성, 테스트 147개 추가, 1687 tests pass
 
+## Completed (continued 10)
+- [x] Task 42: One-Click Publish — itch.io — itch-publisher.ts 생성, butler CLI 연동, 테스트 180개 추가, 1867 tests pass
+
 ## Queue (순서대로)
-- [ ] Task 42: One-Click Publish — itch.io
 - [ ] Task 43: One-Click Publish — Mobile Stores
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T12:15:00+09:00
+2026-02-15T12:30:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
