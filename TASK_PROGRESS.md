@@ -56,16 +56,20 @@
 ## Completed (continued 6)
 - [x] Task 38: Git-like Work Log — work-log.ts 생성, 테스트 82개 추가, 352 godot-manager tests pass
 
-## Queue (순서대로)
-- [ ] Task 39: Auto-Commit System
+## Completed (continued 7)
+- [x] Task 39: Auto-Commit System — auto-commit.ts 생성, 테스트 123개 추가, 475 godot-manager tests pass
+
+## Current
 - [ ] Task 40: Multi-Platform Build Pipeline
+
+## Queue (순서대로)
 - [ ] Task 41: Build Progress UI
 - [ ] Task 42: One-Click Publish — itch.io
 - [ ] Task 43: One-Click Publish — Mobile Stores
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T11:00:00+09:00
+2026-02-15T11:52:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
