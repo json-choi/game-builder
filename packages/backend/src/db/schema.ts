@@ -3,6 +3,9 @@ import {
   text,
   boolean,
   timestamp,
+  integer,
+  index,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // ─── Better Auth Core Tables ───────────────────────────────────────────────
@@ -84,3 +87,78 @@ export const deviceLoginCode = pgTable("device_login_code", {
   usedAt: timestamp("used_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// ─── Chat Messages ─────────────────────────────────────────────────────────
+
+export const chatMessage = pgTable(
+  "chat_message",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    role: text("role").notNull(), // "user" | "assistant" | "system"
+    content: text("content").notNull(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("chat_message_project_id_idx").on(table.projectId),
+    index("chat_message_created_at_idx").on(table.createdAt),
+  ]
+);
+
+// ─── AI Generations ────────────────────────────────────────────────────────
+
+export const generation = pgTable(
+  "generation",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    agent: text("agent").notNull(), // "game-coder" | "designer" | "scene-builder" | "debugger" | "reviewer"
+    status: text("status").notNull().default("pending"), // "pending" | "running" | "completed" | "failed"
+    prompt: text("prompt").notNull(),
+    result: jsonb("result"),
+    errorMessage: text("error_message"),
+    durationMs: integer("duration_ms"),
+    tokenUsage: jsonb("token_usage"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    completedAt: timestamp("completed_at"),
+  },
+  (table) => [
+    index("generation_project_id_idx").on(table.projectId),
+    index("generation_status_idx").on(table.status),
+  ]
+);
+
+// ─── Project Files ─────────────────────────────────────────────────────────
+
+export const projectFile = pgTable(
+  "project_file",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    path: text("path").notNull(),
+    content: text("content").notNull(),
+    generationId: text("generation_id").references(() => generation.id, {
+      onDelete: "set null",
+    }),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("project_file_project_id_idx").on(table.projectId),
+    index("project_file_path_idx").on(table.projectId, table.path),
+  ]
+);

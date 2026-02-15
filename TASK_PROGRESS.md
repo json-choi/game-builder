@@ -23,10 +23,12 @@
 - [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
 
 ## Current
-- [ ] Task 25: Better Auth Integration
+- [ ] Task 26: PostgreSQL + Drizzle Schema
+
+## Completed (continued)
+- [x] Task 25: Better Auth Integration — auth/schema 테스트 추가, 606 tests pass (51d198a)
 
 ## Queue (순서대로)
-- [ ] Task 26: PostgreSQL + Drizzle Schema
 - [ ] Task 27: Deep Link Auth Flow
 - [ ] Task 28: Web Landing Page
 - [ ] Task 29: PixelLab MCP Integration
