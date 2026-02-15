@@ -497,4 +497,182 @@ describe('AssetGeneratorAgent', () => {
       expect(result.assetPath.startsWith(customPath)).toBe(true)
     })
   })
+
+  describe('error propagation', () => {
+    test('generateCharacter rejects when createCharacter throws', async () => {
+      mockCreateCharacter.mockImplementation(() =>
+        Promise.reject(new Error('PixelLab API error: rate limited'))
+      )
+      const agent = new AssetGeneratorAgent()
+
+      await expect(agent.generateCharacter('hero', projectPath)).rejects.toThrow(
+        'PixelLab API error: rate limited'
+      )
+    })
+
+    test('generateTileset rejects when createTopdownTileset throws', async () => {
+      mockCreateTopdownTileset.mockImplementation(() =>
+        Promise.reject(new Error('PixelLab API error: invalid request'))
+      )
+      const agent = new AssetGeneratorAgent()
+
+      await expect(agent.generateTileset('grass', projectPath)).rejects.toThrow(
+        'PixelLab API error: invalid request'
+      )
+    })
+
+    test('generateTileset rejects when createSidescrollerTileset throws', async () => {
+      mockCreateSidescrollerTileset.mockImplementation(() =>
+        Promise.reject(new Error('PixelLab API error: timeout'))
+      )
+      const agent = new AssetGeneratorAgent()
+
+      await expect(
+        agent.generateTileset('platform', projectPath, { variant: 'sidescroller' })
+      ).rejects.toThrow('PixelLab API error: timeout')
+    })
+
+    test('generateTile rejects when createIsometricTile throws', async () => {
+      mockCreateIsometricTile.mockImplementation(() =>
+        Promise.reject(new Error('PixelLab API error: server error'))
+      )
+      const agent = new AssetGeneratorAgent()
+
+      await expect(agent.generateTile('stone', projectPath)).rejects.toThrow(
+        'PixelLab API error: server error'
+      )
+    })
+
+    test('non-Error rejections propagate as-is', async () => {
+      mockCreateCharacter.mockImplementation(() => Promise.reject('string error'))
+      const agent = new AssetGeneratorAgent()
+
+      await expect(agent.generateCharacter('hero', projectPath)).rejects.toBe('string error')
+    })
+  })
+
+  describe('filename sanitization — edge cases', () => {
+    test('empty string produces empty filename segment', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateCharacter('', projectPath)
+
+      expect(result.assetPath).toEndWith('.png')
+    })
+
+    test('all-special-characters produces empty filename', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateCharacter('@#$%^&*()', projectPath)
+
+      expect(result.assetPath).toEndWith('.png')
+    })
+
+    test('unicode characters are stripped', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateCharacter('火の戦士 hero', projectPath)
+
+      expect(result.assetPath).toContain('hero.png')
+    })
+
+    test('numbers-only description is preserved', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateTile('1234', projectPath)
+
+      expect(result.assetPath).toContain('1234.png')
+    })
+
+    test('mixed case with numbers', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateCharacter('Level3 Boss', projectPath)
+
+      expect(result.assetPath).toContain('level3_boss.png')
+    })
+
+    test('consecutive special characters collapse to single underscore', async () => {
+      const agent = new AssetGeneratorAgent()
+      const result = await agent.generateCharacter('fire---ice___water', projectPath)
+
+      expect(result.assetPath).toContain('fire_ice_water.png')
+    })
+
+    test('exactly 64 character description is not truncated', async () => {
+      const agent = new AssetGeneratorAgent()
+      const desc = 'a'.repeat(64)
+      const result = await agent.generateCharacter(desc, projectPath)
+
+      const filename = result.assetPath.split('/').pop()!.replace('.png', '')
+      expect(filename.length).toBe(64)
+    })
+  })
+
+  describe('generateTileset() — tileSize fallback chain', () => {
+    test('sidescroller uses sidescrollerOptions.tileSize when provided', async () => {
+      const agent = new AssetGeneratorAgent()
+      await agent.generateTileset('cave', projectPath, {
+        variant: 'sidescroller',
+        tileSize: { width: 64, height: 64 },
+        sidescrollerOptions: {
+          tileSize: { width: 32, height: 32 },
+        },
+      })
+
+      const args = mockCreateSidescrollerTileset.mock.calls[0][0] as Record<string, unknown>
+      expect(args.tileSize).toEqual({ width: 32, height: 32 })
+    })
+
+    test('sidescroller falls back to options.tileSize when sidescrollerOptions.tileSize is absent', async () => {
+      const agent = new AssetGeneratorAgent()
+      await agent.generateTileset('cave', projectPath, {
+        variant: 'sidescroller',
+        tileSize: { width: 64, height: 64 },
+        sidescrollerOptions: {
+          lowerDescription: 'rock',
+        },
+      })
+
+      const args = mockCreateSidescrollerTileset.mock.calls[0][0] as Record<string, unknown>
+      expect(args.tileSize).toEqual({ width: 64, height: 64 })
+    })
+
+    test('sidescroller falls back to default 16x16 when no tileSize provided', async () => {
+      const agent = new AssetGeneratorAgent()
+      await agent.generateTileset('cave', projectPath, {
+        variant: 'sidescroller',
+      })
+
+      const args = mockCreateSidescrollerTileset.mock.calls[0][0] as Record<string, unknown>
+      expect(args.tileSize).toEqual({ width: 16, height: 16 })
+    })
+
+    test('sidescroller transitionSize falls back through options chain', async () => {
+      const agent = new AssetGeneratorAgent()
+      await agent.generateTileset('cave', projectPath, {
+        variant: 'sidescroller',
+        transitionSize: 0.5,
+      })
+
+      const args = mockCreateSidescrollerTileset.mock.calls[0][0] as Record<string, unknown>
+      expect(args.transitionSize).toEqual(0.5)
+    })
+  })
+
+  describe('module exports', () => {
+    test('index exports AssetGeneratorAgent class', async () => {
+      const mod = await import('./index')
+      expect(mod.AssetGeneratorAgent).toBeDefined()
+      expect(typeof mod.AssetGeneratorAgent).toBe('function')
+    })
+
+    test('index exports ASSET_GENERATOR_SYSTEM_PROMPT', async () => {
+      const mod = await import('./index')
+      expect(mod.ASSET_GENERATOR_SYSTEM_PROMPT).toBeDefined()
+      expect(typeof mod.ASSET_GENERATOR_SYSTEM_PROMPT).toBe('string')
+    })
+
+    test('exported AssetGeneratorAgent is instantiable', async () => {
+      const mod = await import('./index')
+      const agent = new mod.AssetGeneratorAgent()
+      expect(agent).toBeInstanceOf(mod.AssetGeneratorAgent)
+      expect(agent.systemPrompt).toBe(mod.ASSET_GENERATOR_SYSTEM_PROMPT)
+    })
+  })
 })

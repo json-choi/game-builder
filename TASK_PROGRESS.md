@@ -31,11 +31,12 @@
 ## Skipped (continued)
 - [ ] Task 28: Web Landing Page — OpenCode titlecase 버그로 2회 크래시, skip
 
+- [x] Task 29: PixelLab MCP Integration — client + asset-generator 테스트 추가 (eea9aff)
+
 ## Current
-- [ ] Task 29: PixelLab MCP Integration
+- [ ] Task 30: Asset Generator Agent
 
 ## Queue (순서대로)
-- [ ] Task 30: Asset Generator Agent
 - [ ] Task 31: Godot Auto-Download System
 - [ ] Task 32: Tab System (Left Panel)
 - [ ] Task 33: Cost Tracking & Usage UI
