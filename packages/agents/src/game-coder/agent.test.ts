@@ -62,7 +62,9 @@ mock.module('../opencode/config', () => ({
   getDefaultModel: mockGetDefaultModel,
 }))
 
+const realGodotManager = await import(join(import.meta.dir, '..', '..', '..', 'godot-manager', 'src', 'index.ts'))
 mock.module('@game-builder/godot-manager', () => ({
+  ...realGodotManager,
   checkOnly: mockCheckOnly,
 }))
 

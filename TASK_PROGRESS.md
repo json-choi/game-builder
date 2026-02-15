@@ -19,8 +19,8 @@
 - [x] Task 24: Elysia + Bun Backend Setup — app factory 분리, 테스트 23개 추가 (env 10, app 13), 전체 통과
 - [x] Tests: code-extractor, framework (4), godot-manager (8), orchestrator, config, providers, tools, agent, useChat, usePreview, game-designer, scene-builder, debugger, reviewer, orchestrator-agent, agents-init, progress-reporter, project-manager, useProjects, backend (app, env)
 
-## Skipped
-- [ ] Task 13: Orchestrator Agent — OpenCode titlecase 버그로 2회 크래시, skip
+## Skipped → Completed
+- [x] Task 13: Orchestrator Agent — 검증 완료, OrchestratorAgent + framework orchestration, 52 tests pass
 
 ## Completed (continued)
 - [x] Task 25: Better Auth Integration — auth/schema 테스트 추가, 606 tests pass (51d198a)
@@ -28,8 +28,8 @@
 
 - [x] Task 27: Deep Link Auth Flow — deep-link-auth.ts 추출, 테스트 26개, 683 tests pass (668b645)
 
-## Skipped (continued)
-- [ ] Task 28: Web Landing Page — OpenCode titlecase 버그로 2회 크래시, skip
+## Skipped → Completed (continued)
+- [x] Task 28: Web Landing Page — 검증 완료, landing HTML + OAuth auth flow + dark theme CSS
 
 - [x] Task 29: PixelLab MCP Integration — client + asset-generator 테스트 추가 (eea9aff)
 
@@ -75,10 +75,11 @@
 - [ ] Task 44: One-Click Publish — Steam/Web
 
 ## Last Updated
-2026-02-15T12:23:00+09:00
+2026-02-15T13:42:00+09:00
 
 ## Notes
 - Task 9-12: 코드는 존재하지만 실제 동작 검증/보완 필요
-- bun mock.module은 cross-file 오염 주의
+- bun mock.module은 cross-file 오염 주의 → game-coder mock에 spread 패턴 적용하여 수정 완료
 - OpenCode 크래시 시 해당 Task부터 재시작
-- Task 13: OpenCode titlecase 버그 (locale.ts:3) 2회 연속 발생으로 skip됨
+- Playwright E2E 테스트(app.spec.ts→app.e2e.ts)를 bun test에서 분리 완료
+- 전체 점검: 2492 pass, 0 fail, 55 files

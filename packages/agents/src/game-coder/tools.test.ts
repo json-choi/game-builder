@@ -7,7 +7,9 @@ const mockCheckOnly = mock((_projectPath: string, _scriptPath?: string) =>
   Promise.resolve({ exitCode: 0, stdout: 'OK', stderr: '', timedOut: false })
 )
 
+const realGodotManager = await import(join(import.meta.dir, '..', '..', '..', 'godot-manager', 'src', 'index.ts'))
 mock.module('@game-builder/godot-manager', () => ({
+  ...realGodotManager,
   checkOnly: mockCheckOnly,
 }))
 
