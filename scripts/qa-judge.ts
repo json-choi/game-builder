@@ -240,6 +240,115 @@ function checkUserRequirements(projectPath: string, files: string[], prompt: QAP
   }
 }
 
+function checkAllScriptsHaveFunctions(projectPath: string, files: string[]): CheckItem {
+  const gdFiles = files.filter(f => extname(f) === '.gd')
+  if (gdFiles.length === 0) {
+    return { name: 'All Scripts Functional', passed: false, reason: 'No .gd files found', weight: 10 }
+  }
+
+  const emptyScripts: string[] = []
+  for (const gdFile of gdFiles) {
+    const content = readFile(projectPath, gdFile)
+    if (!content) continue
+    if (!/\bfunc\s+\w+/.test(content)) {
+      emptyScripts.push(gdFile)
+    }
+  }
+
+  if (emptyScripts.length > 0) {
+    return {
+      name: 'All Scripts Functional',
+      passed: false,
+      reason: `Scripts without functions: ${emptyScripts.join(', ')}. Every .gd file must have at least one function.`,
+      weight: 10,
+    }
+  }
+  return { name: 'All Scripts Functional', passed: true, reason: `All ${gdFiles.length} script(s) have functions`, weight: 10 }
+}
+
+function checkMainSceneExists(projectPath: string, files: string[]): CheckItem {
+  const projectGodot = readFile(projectPath, 'project.godot')
+  if (!projectGodot) {
+    return { name: 'Main Scene Exists', passed: false, reason: 'project.godot missing', weight: 10 }
+  }
+
+  const mainSceneMatch = projectGodot.match(/run\/main_scene\s*=\s*"res:\/\/([^"]+)"/)
+  if (!mainSceneMatch) {
+    return { name: 'Main Scene Exists', passed: false, reason: 'run/main_scene not configured', weight: 10 }
+  }
+
+  const mainScenePath = mainSceneMatch[1]
+  if (!files.includes(mainScenePath)) {
+    return { name: 'Main Scene Exists', passed: false, reason: `Main scene "${mainScenePath}" referenced but file not found`, weight: 10 }
+  }
+
+  return { name: 'Main Scene Exists', passed: true, reason: `Main scene "${mainScenePath}" exists`, weight: 10 }
+}
+
+function checkSceneNodeTypes(projectPath: string, files: string[]): CheckItem {
+  const tscnFiles = files.filter(f => extname(f) === '.tscn')
+  if (tscnFiles.length === 0) {
+    return { name: 'Scene Node Types', passed: false, reason: 'No scene files', weight: 10 }
+  }
+
+  const allContent = tscnFiles.map(f => readFile(projectPath, f) ?? '').join('\n')
+  
+  // Check for essential 2D game nodes
+  const hasCollision = /CollisionShape2D|CollisionPolygon2D/.test(allContent)
+  const hasVisual = /Sprite2D|AnimatedSprite2D|ColorRect|Polygon2D/.test(allContent)
+  const hasBody = /CharacterBody2D|RigidBody2D|StaticBody2D|Area2D/.test(allContent)
+
+  const missing: string[] = []
+  if (!hasCollision) missing.push('CollisionShape2D (no collision detection)')
+  if (!hasVisual) missing.push('visual node (Sprite2D/ColorRect/etc)')
+  if (!hasBody) missing.push('physics body (CharacterBody2D/StaticBody2D/etc)')
+
+  if (missing.length > 0) {
+    return { name: 'Scene Node Types', passed: false, reason: `Missing essential nodes: ${missing.join(', ')}`, weight: 10 }
+  }
+  return { name: 'Scene Node Types', passed: true, reason: 'Has collision, visual, and physics nodes', weight: 10 }
+}
+
+function checkCodeQuality(projectPath: string, files: string[]): CheckItem {
+  const gdFiles = files.filter(f => extname(f) === '.gd')
+  if (gdFiles.length === 0) {
+    return { name: 'Code Quality', passed: false, reason: 'No scripts', weight: 10 }
+  }
+
+  const issues: string[] = []
+  let totalFunctions = 0
+  let hasTypeHints = false
+  let hasConstants = false
+
+  for (const gdFile of gdFiles) {
+    const content = readFile(projectPath, gdFile)
+    if (!content) continue
+
+    const funcMatches = content.match(/\bfunc\s+\w+/g) || []
+    totalFunctions += funcMatches.length
+
+    if (/:\s*(float|int|String|Vector2|bool|void)\b/.test(content)) hasTypeHints = true
+    if (/\bconst\s+\w+/.test(content) || /@export\s/.test(content)) hasConstants = true
+
+    // Check for common bad patterns
+    if (/\bpass\s*$/.test(content) && funcMatches.length <= 1) {
+      issues.push(`${gdFile}: mostly empty (only 'pass' statements)`)
+    }
+  }
+
+  if (totalFunctions < 3) {
+    issues.push(`Only ${totalFunctions} functions total — too few for a game`)
+  }
+  if (!hasTypeHints) {
+    issues.push('No type hints found — Godot 4.4 best practice is to use type hints')
+  }
+
+  if (issues.length > 0) {
+    return { name: 'Code Quality', passed: false, reason: issues.join('; '), weight: 10 }
+  }
+  return { name: 'Code Quality', passed: true, reason: `${totalFunctions} functions, type hints present`, weight: 10 }
+}
+
 export function judge(projectPath: string, prompt: QAPrompt): JudgeResult {
   const files = listFilesRecursive(projectPath)
 
@@ -250,6 +359,10 @@ export function judge(projectPath: string, prompt: QAPrompt): JudgeResult {
     checkSceneFileFormat(projectPath, files),
     checkGameLogicExists(projectPath, files),
     checkUserRequirements(projectPath, files, prompt),
+    checkAllScriptsHaveFunctions(projectPath, files),
+    checkMainSceneExists(projectPath, files),
+    checkSceneNodeTypes(projectPath, files),
+    checkCodeQuality(projectPath, files),
   ]
 
   const totalWeight = checks.reduce((sum, c) => sum + c.weight, 0)

@@ -7,8 +7,8 @@ import { checkHealth } from '../packages/agents/src/opencode/server'
 
 const PROJECT_ROOT = join(import.meta.dir, '..')
 const REPORT_PATH = join(PROJECT_ROOT, 'qa-report.md')
-const MAX_ITERATIONS = 5
-const TARGET_SCORE = 80
+const MAX_ITERATIONS = 10
+const TARGET_SCORE = 100
 
 interface IterationRecord {
   iteration: number
