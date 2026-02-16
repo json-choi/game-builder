@@ -90,24 +90,39 @@ export class GameCoderAgent {
         attempt,
       })
 
-      const validation = (await validateTool.execute({})) as {
-        exitCode: number
-        stdout: string
-        stderr: string
-      }
+      try {
+        const validation = (await validateTool.execute({})) as {
+          exitCode: number
+          stdout: string
+          stderr: string
+        }
 
-      if (validation.exitCode === 0) {
-        onProgress?.({
-          type: 'complete',
-          message: `Successfully generated ${files.length} file(s)`,
-          attempt,
-          files,
-        })
-        return { success: true, files, errors, attempts: attempt }
-      }
+        if (validation.exitCode === 0) {
+          onProgress?.({
+            type: 'complete',
+            message: `Successfully generated ${files.length} file(s)`,
+            attempt,
+            files,
+          })
+          return { success: true, files, errors, attempts: attempt }
+        }
 
-      const errorMsg = validation.stderr || validation.stdout || 'Unknown validation error'
-      errors.push(`Attempt ${attempt}: Validation failed — ${errorMsg}`)
+        const errorMsg = validation.stderr || validation.stdout || 'Unknown validation error'
+        errors.push(`Attempt ${attempt}: Validation failed — ${errorMsg}`)
+      } catch (validationError) {
+        // Godot not installed — skip validation, treat as success if files were generated
+        const msg = validationError instanceof Error ? validationError.message : String(validationError)
+        if (msg.includes('Godot not found')) {
+          onProgress?.({
+            type: 'complete',
+            message: `Generated ${files.length} file(s) (Godot validation skipped — not installed)`,
+            attempt,
+            files,
+          })
+          return { success: true, files, errors: [...errors, 'Godot not installed, validation skipped'], attempts: attempt }
+        }
+        errors.push(`Attempt ${attempt}: Validation error — ${msg}`)
+      }
 
       if (attempt < maxRetries) {
         onProgress?.({

@@ -1,14 +1,10 @@
 import { existsSync, mkdirSync, writeFileSync, cpSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import {
-  checkHealth,
-  setDirectory,
-  GameCoderAgent,
-  type GenerateResult,
-  type GameCoderEvent,
-} from '@game-builder/agents'
-import { OrchestratorAgent } from '@game-builder/agents/orchestrator'
+import { checkHealth } from '../packages/agents/src/opencode/server'
+import { setDirectory } from '../packages/agents/src/opencode/client'
+import { GameCoderAgent, type GenerateResult, type GameCoderEvent } from '../packages/agents/src/game-coder/agent'
+import { OrchestratorAgent } from '../packages/agents/src/orchestrator/agent'
 import type { QAPrompt } from './qa-prompts'
 
 const PROJECT_ROOT = join(import.meta.dir, '..')

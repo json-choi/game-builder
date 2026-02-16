@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { QA_PROMPTS } from './qa-prompts'
 import { runHarness, runHarnessWithFix } from './qa-harness'
 import { judge, issuesToFixPrompt, type JudgeResult } from './qa-judge'
-import { checkHealth } from '@game-builder/agents'
+import { checkHealth } from '../packages/agents/src/opencode/server'
 
 const PROJECT_ROOT = join(import.meta.dir, '..')
 const REPORT_PATH = join(PROJECT_ROOT, 'qa-report.md')
