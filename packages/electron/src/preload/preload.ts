@@ -76,6 +76,18 @@ const godot = {
     ipcRenderer.on('godot:preview-output', handler)
     return () => ipcRenderer.removeListener('godot:preview-output', handler)
   },
+  uploadToPlatform: (
+    projectPath: string,
+    apiUrl: string,
+    onProgress?: (message: string) => void
+  ) => {
+    const progressChannel = `godot:upload-progress:${Date.now()}`
+    if (onProgress) {
+      const handler = (_e: Electron.IpcRendererEvent, data: string) => onProgress(data)
+      ipcRenderer.on(progressChannel, handler)
+    }
+    return ipcRenderer.invoke('godot:upload-to-platform', projectPath, apiUrl, progressChannel)
+  },
 }
 
 const chat = {

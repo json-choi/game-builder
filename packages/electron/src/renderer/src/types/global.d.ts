@@ -100,12 +100,20 @@ interface PreviewState {
   output: string[]
 }
 
+interface PlatformUploadResult {
+  success: boolean
+  gameUrl?: string
+  gameId?: string
+  error?: string
+}
+
 interface GodotAPI {
   startPreview: (projectPath: string) => Promise<PreviewState>
   stopPreview: () => Promise<boolean>
   getPreviewStatus: () => Promise<PreviewState>
   onPreviewStateChanged: (callback: (state: PreviewState) => void) => () => void
   onPreviewOutput: (callback: (line: string) => void) => () => void
+  uploadToPlatform: (projectPath: string, apiUrl: string, onProgress?: (message: string) => void) => Promise<PlatformUploadResult>
 }
 
 interface ChatMessage {

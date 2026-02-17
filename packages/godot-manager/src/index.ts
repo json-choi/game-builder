@@ -310,3 +310,10 @@ export {
   createGooglePlayExecutor,
   createAppStoreExecutor,
 } from "./mobile-publisher.js";
+
+export {
+  uploadToPlatform,
+  findWebPreset,
+  type PlatformUploadOptions,
+  type PlatformUploadResult,
+} from "./platform-upload.js";

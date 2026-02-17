@@ -53,6 +53,7 @@ import {
   createDefaultPresets,
   exportGodotProject,
   checkExportTemplates,
+  uploadToPlatform,
 } from '@game-builder/godot-manager'
 import {
   initializeAgents,
@@ -379,6 +380,21 @@ function registerOpenCodeIPC(): void {
   ipcMain.handle('godot:preview-status', () => {
     return previewManager.getState()
   })
+
+  ipcMain.handle(
+    'godot:upload-to-platform',
+    async (event, projectPath: string, apiUrl: string, progressChannel: string) => {
+      return uploadToPlatform({
+        projectPath,
+        apiUrl,
+        onProgress: (message: string) => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send(progressChannel, message)
+          }
+        },
+      })
+    }
+  )
 
   ipcMain.handle('chat:save-message', (_event, msg: { projectId: string; role: 'user' | 'assistant' | 'system'; content: string; timestamp: number; metadata?: string }) => {
     return saveMessage(msg)
